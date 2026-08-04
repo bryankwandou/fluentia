@@ -76,7 +76,7 @@ export default function ManifestoPage() {
               Test the grading yourself
             </Link>
             <Link
-              href="https://github.com/bryankwandou/fluentia"
+              href="https://github.com/VincentiusBryanKwandou/fluentia"
               className="rounded-xl border border-line px-5 py-3 text-sm transition-colors hover:border-white/25"
             >
               Read the source

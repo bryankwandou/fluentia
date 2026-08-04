@@ -23,7 +23,7 @@ const COLUMNS = [
     title: "Company",
     links: [
       { href: "/manifesto", label: "Why we built this" },
-      { href: "https://github.com/bryankwandou/fluentia", label: "Source on GitHub" },
+      { href: "https://github.com/VincentiusBryanKwandou/fluentia", label: "Source on GitHub" },
     ],
   },
 ];
