@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { AUDIO_MODEL, CHAT_MODEL, getGroq, gradingSystemPrompt, safeJson } from "@/lib/groq";
+import { scoreTones, tonesFromPinyin, type MandarinTone } from "@/lib/pitch";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -17,6 +18,12 @@ export type Grade = {
   nextPromptGloss: string;
 };
 
+export type ToneReport = {
+  overall: number;
+  perSyllable: { tone: number; name: string; score: number }[];
+  measured: true;
+};
+
 const FALLBACK: Grade = {
   score: 0,
   accuracy: 0,
@@ -31,8 +38,14 @@ const FALLBACK: Grade = {
 };
 
 /**
- * Two hops: Whisper turns the recording into text, then the examiner model
- * scores that text against the prompt the learner was given.
+ * Three inputs decide the mark.
+ *
+ * Whisper turns the recording into text. The examiner model judges what was
+ * said. And for tonal languages the pitch contour measured in the browser is
+ * compared against the expected tone sequence arithmetically — no model
+ * involved — because a transcript has already discarded the pitch that tone
+ * actually lives in. When that measurement exists it overrides whatever the
+ * model guessed.
  */
 export async function POST(request: Request) {
   const groq = getGroq();
@@ -52,6 +65,7 @@ export async function POST(request: Request) {
   const track = String(form.get("track") ?? "Mandarin Chinese");
   const level = String(form.get("level") ?? "HSK 1");
   const prompt = String(form.get("prompt") ?? "");
+  const expectedPinyin = String(form.get("expectedPinyin") ?? "");
 
   if (!(audio instanceof File) || audio.size === 0) {
     return NextResponse.json({ error: "No recording was attached." }, { status: 400 });
@@ -59,6 +73,11 @@ export async function POST(request: Request) {
   if (audio.size > 20 * 1024 * 1024) {
     return NextResponse.json({ error: "Recording exceeds 20 MB." }, { status: 413 });
   }
+
+  const contour = parseNumbers(form.get("contour"));
+  const medianHz = Number(form.get("medianHz") ?? 0);
+  const voicedRatio = Number(form.get("voicedRatio") ?? 0);
+  const voicedMs = Number(form.get("voicedMs") ?? 0);
 
   try {
     const transcription = await groq.audio.transcriptions.create({
@@ -73,8 +92,25 @@ export async function POST(request: Request) {
       return NextResponse.json({
         transcript: "",
         grade: { ...FALLBACK, verdict: "Nothing audible came through." },
+        tones: null,
       });
     }
+
+    const isTonal = /mandarin|chinese|cantonese|vietnamese|thai/i.test(track);
+    const expectedTones: MandarinTone[] = isTonal
+      ? tonesFromPinyin(expectedPinyin)
+      : [];
+    const tones =
+      expectedTones.length > 0 && contour.length > 0
+        ? scoreTones(contour, expectedTones)
+        : null;
+
+    const measurement = describeMeasurement({
+      medianHz,
+      voicedRatio,
+      voicedMs,
+      tones,
+    });
 
     const completion = await groq.chat.completions.create({
       model: CHAT_MODEL,
@@ -85,7 +121,14 @@ export async function POST(request: Request) {
         { role: "system", content: gradingSystemPrompt(track, level) },
         {
           role: "user",
-          content: `Target line: ${prompt || "(open practice, no fixed line)"}\nWhat the learner said: ${spoken}`,
+          content: [
+            `Target line: ${prompt || "(open practice, no fixed line)"}`,
+            expectedPinyin ? `Expected pinyin: ${expectedPinyin}` : "",
+            `What the learner said: ${spoken}`,
+            measurement,
+          ]
+            .filter(Boolean)
+            .join("\n"),
         },
       ],
     });
@@ -95,9 +138,69 @@ export async function POST(request: Request) {
       FALLBACK
     );
 
-    return NextResponse.json({ transcript: spoken, grade });
+    // The measured tone score is arithmetic, so it wins. The composite is
+    // recomputed to keep the headline number consistent with its parts.
+    if (tones) {
+      grade.tone = tones.overall;
+      grade.score = Math.round(
+        grade.accuracy * 0.35 +
+          grade.pronunciation * 0.2 +
+          tones.overall * 0.3 +
+          grade.fluency * 0.15
+      );
+    }
+
+    return NextResponse.json({
+      transcript: spoken,
+      grade,
+      tones: tones ? { ...tones, measured: true as const } : null,
+      voice: { medianHz, voicedRatio, voicedMs },
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Upstream failure.";
     return NextResponse.json({ error: message }, { status: 502 });
   }
+}
+
+function parseNumbers(value: FormDataEntryValue | null) {
+  if (typeof value !== "string" || !value) return [];
+  return value
+    .split(",")
+    .map(Number)
+    .filter((entry) => Number.isFinite(entry));
+}
+
+function describeMeasurement({
+  medianHz,
+  voicedRatio,
+  voicedMs,
+  tones,
+}: {
+  medianHz: number;
+  voicedRatio: number;
+  voicedMs: number;
+  tones: ReturnType<typeof scoreTones>;
+}) {
+  if (!medianHz) return "";
+
+  const lines = [
+    "",
+    "Acoustic measurements taken from the raw recording, not inferred:",
+    `- median pitch ${medianHz} Hz`,
+    `- voiced for ${voicedMs} ms, ${Math.round(voicedRatio * 100)}% of the clip`,
+  ];
+
+  if (tones) {
+    lines.push(
+      `- measured tone accuracy ${tones.overall}/100`,
+      ...tones.perSyllable.map(
+        (entry, index) =>
+          `  syllable ${index + 1}, expected ${entry.name} tone: ${entry.score}/100`
+      ),
+      "Use the measured tone figures as given. Do not restate them as your own",
+      "estimate, and make your correction address the weakest syllable above."
+    );
+  }
+
+  return lines.join("\n");
 }
