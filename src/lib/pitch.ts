@@ -121,7 +121,11 @@ export function trackPitch(samples: Float32Array, sampleRate: number): PitchTrac
   const contour = voiced.map((hz) => 12 * Math.log2(hz / medianHz));
 
   return {
-    contour: resample(smooth(contour), 24).map((value) => round(value, 2)),
+    // 96 points keeps the payload trivial while leaving at least four samples
+    // per syllable on lines up to twenty-four syllables, which is the length
+    // the HSK 5 and 6 drills actually reach. At 24 points the longer lines
+    // silently fell through to no tone score at all.
+    contour: resample(smooth(contour), 96).map((value) => round(value, 2)),
     medianHz: round(medianHz, 1),
     voicedRatio: round(voiced.length / readings.length, 3),
     voicedMs: voiced.length * HOP_MS,
@@ -188,24 +192,41 @@ export function scoreTones(contour: number[], expected: MandarinTone[]) {
 
   const perSyllable = expected.map((tone, index) => {
     const segment = contour.slice(index * slice, (index + 1) * slice);
-    const centred = centre(resample(segment, 8));
-    const ideal = TONE_SHAPES[tone];
+    const raw = resample(segment, 8);
+    const centred = centre(raw);
+    const ideal = centre(TONE_SHAPES[tone]);
+    const spread = Math.max(...centred) - Math.min(...centred);
 
-    if (tone === 5) {
-      // A neutral tone is judged on staying flat, not on matching a shape.
-      const spread = Math.max(...centred) - Math.min(...centred);
-      return { tone, score: clamp(100 - spread * 14) };
+    // Tones 1 and 5 carry no contour of their own — a high level tone and a
+    // neutral tone are both judged on holding still. Comparing them by shape
+    // would be comparing against a flat line, which correlates with nothing.
+    // What separates them is register: tone 1 sits above the speaker's median,
+    // a neutral tone sits at or below it.
+    if (variance(ideal) < 1e-9) {
+      const level = raw.reduce((sum, value) => sum + value, 0) / raw.length;
+      const target = tone === 1 ? 2 : -1;
+      const flatness = clamp(100 - spread * (tone === 5 ? 14 : 11));
+      const register = clamp(100 - Math.abs(level - target) * 9);
+      return { tone, score: clamp(flatness * 0.72 + register * 0.28) };
     }
 
     // Correlation captures the shape, error captures the depth. A learner who
     // rises in the right direction but far too weakly should not score full
-    // marks, which is exactly what most apps let slide.
+    // marks, which is exactly what most apps let slide. A near-flat delivery
+    // has no shape to correlate at all, so its shape credit is scaled down
+    // toward neutral rather than being awarded on the strength of noise.
+    const idealSpread = Math.max(...ideal) - Math.min(...ideal);
+    const confidence = Math.min(1, spread / (idealSpread * 0.55));
     const shape = correlate(centred, ideal);
     const error = rootMeanSquare(centred.map((value, i) => value - ideal[i]));
     const shapeScore = ((shape + 1) / 2) * 100;
     const depthScore = clamp(100 - error * 11);
+    const base = shapeScore * 0.62 + depthScore * 0.38;
 
-    return { tone, score: clamp(shapeScore * 0.62 + depthScore * 0.38) };
+    // A delivery with no contour at all gets no credit for accidentally
+    // pointing the right way. As the movement approaches full depth the gate
+    // opens and the measured score stands on its own.
+    return { tone, score: clamp(40 + (base - 40) * confidence) };
   });
 
   const overall =
@@ -279,6 +300,11 @@ function correlate(a: number[], b: number[]) {
 
   const denominator = Math.sqrt(energyA * energyB);
   return denominator === 0 ? 0 : numerator / denominator;
+}
+
+function variance(values: number[]) {
+  const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+  return values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length;
 }
 
 function rootMeanSquare(values: number[]) {

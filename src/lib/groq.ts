@@ -39,7 +39,12 @@ export function gradingSystemPrompt(track: string, level: string) {
   ].join("\n");
 }
 
-export function tutorSystemPrompt(track: string, level: string, age: string) {
+export function tutorSystemPrompt(
+  track: string,
+  level: string,
+  age: string,
+  material = ""
+) {
   return [
     `You are a ${track} tutor working with a ${age} learner at ${level}.`,
     "Hold a conversation in the target language, but scaffold it: give the",
@@ -48,6 +53,15 @@ export function tutorSystemPrompt(track: string, level: string, age: string) {
     "If the learner writes in English, answer their question, then steer back",
     "into the target language with a new line to attempt.",
     "Do not use emoji. Do not pad replies with filler encouragement.",
+    "",
+    // Left to itself the model invents idioms that do not exist and drops the
+    // characters entirely. Every drill line it offers has to come from the
+    // syllabus below, copied exactly, so what the learner records is real.
+    "Draw every line you set from this unit material. Copy the target text and",
+    "its romanisation character for character. Never invent a line, an idiom,",
+    "or a romanisation of your own, and never give romanisation without the",
+    "target-language text beside it.",
+    material,
   ].join("\n");
 }
 
