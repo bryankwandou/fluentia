@@ -41,6 +41,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Pass the funding signature." }, { status: 400 });
   }
 
+  // Rejected here rather than at the RPC, which answers a malformed signature
+  // with an internal parser error that means nothing to a caller.
+  if (!/^[1-9A-HJ-NP-Za-km-z]{86,90}$/.test(signature)) {
+    return NextResponse.json(
+      { error: "That is not a valid transaction signature." },
+      { status: 400 }
+    );
+  }
+
   const registrar = getRegistrar();
   if (!registrar) {
     return NextResponse.json(
