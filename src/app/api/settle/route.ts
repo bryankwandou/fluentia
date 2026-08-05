@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
-import { getConnection, explorerTx } from "@/lib/solana";
+import { getConnection, explorerTx, getRegistrar } from "@/lib/solana";
 import {
   LESSON_PRICE_USDC,
   TREASURY,
   USDC_DEVNET_MINT,
+  isRedeemed,
+  markRedeemed,
   verifySettlement,
 } from "@/lib/payments";
 
@@ -39,15 +41,41 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Pass the funding signature." }, { status: 400 });
   }
 
-  try {
-    const result = await verifySettlement(
-      getConnection(),
-      signature,
-      LESSON_PRICE_USDC
+  const registrar = getRegistrar();
+  if (!registrar) {
+    return NextResponse.json(
+      { error: "Settlement is offline: no registrar key on this deployment." },
+      { status: 503 }
     );
+  }
+
+  try {
+    const connection = getConnection();
+
+    // Cheap rejection first, so an obvious replay never costs a full
+    // transaction lookup.
+    if (await isRedeemed(connection, registrar.publicKey, signature)) {
+      return NextResponse.json(
+        { error: "That transfer has already been credited." },
+        { status: 409 }
+      );
+    }
+
+    const result = await verifySettlement(connection, signature, LESSON_PRICE_USDC);
 
     if (!result.ok) {
       return NextResponse.json({ error: result.reason }, { status: 422 });
+    }
+
+    // Claiming is what actually settles the race: two requests carrying the
+    // same signature both reach here, and the runtime lets exactly one create
+    // the marker account.
+    const claim = await markRedeemed(connection, registrar, signature);
+    if (!claim.ok) {
+      return NextResponse.json(
+        { error: "That transfer has already been credited." },
+        { status: 409 }
+      );
     }
 
     return NextResponse.json({
@@ -56,6 +84,7 @@ export async function POST(request: Request) {
       lessons: Math.floor(result.amount / LESSON_PRICE_USDC),
       from: result.from,
       slot: result.slot,
+      redemption: claim.marker,
       explorer: explorerTx(signature),
     });
   } catch (error) {
