@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { CHAT_MODEL, getGroq, tutorSystemPrompt } from "@/lib/groq";
+import { syllabusFor } from "@/lib/modules";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
       temperature: 0.6,
       max_tokens: 400,
       messages: [
-        { role: "system", content: tutorSystemPrompt(track, level, age) },
+        { role: "system", content: tutorSystemPrompt(track, level, age, syllabusFor(level)) },
         ...history,
       ],
     });
