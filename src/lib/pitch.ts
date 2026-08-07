@@ -157,18 +157,70 @@ export async function analyseBlob(blob: Blob): Promise<PitchTrack | null> {
 /* ------------------------------------------------------------------ tones */
 
 export type MandarinTone = 1 | 2 | 3 | 4 | 5;
+export type ToneSystem = "mandarin" | "cantonese";
+
+type ToneSpec = {
+  name: string;
+  /** Contour in semitones relative to the syllable's own mean. */
+  shape: number[];
+  /** Where the syllable sits relative to the speaker's median pitch. */
+  level: number;
+};
 
 /**
- * Idealised contours in semitones relative to the syllable's own mean, sampled
- * at eight points. Shapes follow the Chao tone letters: 55, 35, 214, 51, and a
- * neutral tone that carries no shape of its own.
+ * Idealised contours in semitones, sampled at eight points. Mandarin shapes
+ * follow the Chao tone letters: 55, 35, 214, 51, and a neutral tone that
+ * carries no shape of its own.
  */
-const TONE_SHAPES: Record<MandarinTone, number[]> = {
-  1: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0],
-  2: [-2.0, -1.6, -1.0, -0.2, 0.7, 1.6, 2.4, 3.0],
-  3: [-0.5, -1.6, -2.6, -3.2, -3.0, -1.8, 0.2, 1.6],
-  4: [3.4, 2.4, 1.2, -0.2, -1.6, -2.8, -3.6, -4.0],
-  5: [0, 0, 0, 0, 0, 0, 0, 0],
+const MANDARIN: Record<number, ToneSpec> = {
+  1: { name: "high level", shape: flat(), level: 2 },
+  2: { name: "rising", shape: [-2.0, -1.6, -1.0, -0.2, 0.7, 1.6, 2.4, 3.0], level: 0.5 },
+  3: { name: "dipping", shape: [-0.5, -1.6, -2.6, -3.2, -3.0, -1.8, 0.2, 1.6], level: -2 },
+  4: { name: "falling", shape: [3.4, 2.4, 1.2, -0.2, -1.6, -2.8, -3.6, -4.0], level: 0 },
+  5: { name: "neutral", shape: flat(), level: -1 },
+};
+
+/**
+ * Cantonese, which is the harder case and the reason this is table-driven.
+ * Three of its six tones are level — 55, 33 and 22 — and differ from each
+ * other by nothing but register. A grader that centres each syllable before
+ * comparing, as the Mandarin path does, cannot tell them apart at all. So
+ * register is a first-class term here rather than a tiebreak for flat tones.
+ */
+const CANTONESE: Record<number, ToneSpec> = {
+  1: { name: "high level", shape: flat(), level: 4 },
+  2: { name: "high rising", shape: [-2.2, -1.8, -1.2, -0.4, 0.5, 1.4, 2.2, 2.8], level: 1.5 },
+  3: { name: "mid level", shape: flat(), level: 0.5 },
+  4: { name: "low falling", shape: [1.4, 0.9, 0.4, -0.1, -0.6, -1.1, -1.6, -2.0], level: -4 },
+  5: { name: "low rising", shape: [-1.8, -1.4, -0.9, -0.3, 0.4, 1.0, 1.6, 2.0], level: -2 },
+  6: { name: "low level", shape: flat(), level: -1.5 },
+};
+
+const SYSTEMS: Record<ToneSystem, Record<number, ToneSpec>> = {
+  mandarin: MANDARIN,
+  cantonese: CANTONESE,
+};
+
+/**
+ * How much of the mark register carries. Mandarin tones are told apart by
+ * their movement, so register is a light corrective there; Cantonese level
+ * tones have nothing else to go on.
+ */
+const REGISTER_WEIGHT: Record<ToneSystem, number> = {
+  mandarin: 0.16,
+  cantonese: 0.45,
+};
+
+/**
+ * Points lost per semitone of register error. The slope has to match how
+ * closely the language packs its levels: Mandarin's level tones sit three or
+ * four semitones apart, Cantonese packs three of them into roughly five, so a
+ * gentler Mandarin slope and a steeper Cantonese one are the same strictness
+ * expressed in each language's own spacing.
+ */
+const REGISTER_SLOPE: Record<ToneSystem, number> = {
+  mandarin: 9,
+  cantonese: 14,
 };
 
 export const TONE_NAMES: Record<MandarinTone, string> = {
@@ -179,54 +231,86 @@ export const TONE_NAMES: Record<MandarinTone, string> = {
   5: "neutral",
 };
 
+export function toneCount(system: ToneSystem) {
+  return Object.keys(SYSTEMS[system]).length;
+}
+
+function flat() {
+  return [0, 0, 0, 0, 0, 0, 0, 0];
+}
+
 /**
  * Compare a measured contour against the expected tone sequence and return a
  * score out of 100. Each syllable gets an equal slice of the voiced region,
  * which is coarse but holds up well for the short drilled lines this is used on.
  */
-export function scoreTones(contour: number[], expected: MandarinTone[]) {
+export function scoreTones(
+  contour: number[],
+  expected: number[],
+  system: ToneSystem = "mandarin"
+) {
   if (contour.length < 8 || expected.length === 0) return null;
 
+  const table = SYSTEMS[system];
+
+  // Register is measured against the speaker's own median, and on a single
+  // syllable that median *is* the syllable — the level comes out at zero no
+  // matter what was said. So register only carries information once there is
+  // more than one syllable to compare against. Scoring it on a monosyllable
+  // would be scoring noise, and it cost a correctly produced Mandarin third
+  // tone two points against a wrong answer when it was first tried.
+  const registerWeight = expected.length > 1 ? REGISTER_WEIGHT[system] : 0;
   const slice = Math.floor(contour.length / expected.length);
   if (slice < 4) return null;
 
   const perSyllable = expected.map((tone, index) => {
+    const spec = table[tone];
+    if (!spec) return { tone, name: "unknown", score: 0 };
+
     const segment = contour.slice(index * slice, (index + 1) * slice);
     const raw = resample(segment, 8);
     const centred = centre(raw);
-    const ideal = centre(TONE_SHAPES[tone]);
+    const ideal = centre(spec.shape);
     const spread = Math.max(...centred) - Math.min(...centred);
 
-    // Tones 1 and 5 carry no contour of their own — a high level tone and a
-    // neutral tone are both judged on holding still. Comparing them by shape
-    // would be comparing against a flat line, which correlates with nothing.
-    // What separates them is register: tone 1 sits above the speaker's median,
-    // a neutral tone sits at or below it.
+    // Register: where the syllable sits against the speaker's own median. This
+    // is the only thing separating Cantonese 55, 33 and 22, and it is what
+    // stops a Mandarin first tone being scored as a neutral one.
+    const level = raw.reduce((sum, value) => sum + value, 0) / raw.length;
+    const register = clamp(100 - Math.abs(level - spec.level) * REGISTER_SLOPE[system]);
+
+    let contourScore: number;
+
     if (variance(ideal) < 1e-9) {
-      const level = raw.reduce((sum, value) => sum + value, 0) / raw.length;
-      const target = tone === 1 ? 2 : -1;
-      const flatness = clamp(100 - spread * (tone === 5 ? 14 : 11));
-      const register = clamp(100 - Math.abs(level - target) * 9);
-      return { tone, score: clamp(flatness * 0.72 + register * 0.28) };
+      // A level tone carries no shape, so it is judged on holding still.
+      // Comparing it by correlation would be correlating against a flat line,
+      // which matches anything.
+      contourScore = clamp(100 - spread * 12);
+    } else {
+      // Correlation captures the shape, error captures the depth. A learner who
+      // rises in the right direction but far too weakly should not score full
+      // marks, which is exactly what most apps let slide. A near-flat delivery
+      // has no shape to correlate at all, so its shape credit is scaled down
+      // toward neutral rather than being awarded on the strength of noise.
+      const idealSpread = Math.max(...ideal) - Math.min(...ideal);
+      const confidence = Math.min(1, spread / (idealSpread * 0.55));
+      const shape = correlate(centred, ideal);
+      const error = rootMeanSquare(centred.map((value, i) => value - ideal[i]));
+      const shapeScore = ((shape + 1) / 2) * 100;
+      const depthScore = clamp(100 - error * 11);
+      const base = shapeScore * 0.62 + depthScore * 0.38;
+
+      // A delivery with no contour at all gets no credit for accidentally
+      // pointing the right way. As the movement approaches full depth the gate
+      // opens and the measured score stands on its own.
+      contourScore = clamp(40 + (base - 40) * confidence);
     }
 
-    // Correlation captures the shape, error captures the depth. A learner who
-    // rises in the right direction but far too weakly should not score full
-    // marks, which is exactly what most apps let slide. A near-flat delivery
-    // has no shape to correlate at all, so its shape credit is scaled down
-    // toward neutral rather than being awarded on the strength of noise.
-    const idealSpread = Math.max(...ideal) - Math.min(...ideal);
-    const confidence = Math.min(1, spread / (idealSpread * 0.55));
-    const shape = correlate(centred, ideal);
-    const error = rootMeanSquare(centred.map((value, i) => value - ideal[i]));
-    const shapeScore = ((shape + 1) / 2) * 100;
-    const depthScore = clamp(100 - error * 11);
-    const base = shapeScore * 0.62 + depthScore * 0.38;
-
-    // A delivery with no contour at all gets no credit for accidentally
-    // pointing the right way. As the movement approaches full depth the gate
-    // opens and the measured score stands on its own.
-    return { tone, score: clamp(40 + (base - 40) * confidence) };
+    return {
+      tone,
+      name: spec.name,
+      score: clamp(contourScore * (1 - registerWeight) + register * registerWeight),
+    };
   });
 
   const overall =
@@ -236,10 +320,18 @@ export function scoreTones(contour: number[], expected: MandarinTone[]) {
     overall: Math.round(overall),
     perSyllable: perSyllable.map((entry) => ({
       tone: entry.tone,
-      name: TONE_NAMES[entry.tone],
+      name: entry.name,
       score: Math.round(entry.score),
     })),
   };
+}
+
+/** Pull tone digits out of Jyutping such as "nei5 hou2". */
+export function tonesFromJyutping(text: string) {
+  const matches = text.match(/[a-z]+[1-6]/gi) ?? [];
+  return matches
+    .map((token) => Number(token.slice(-1)))
+    .filter((tone) => tone >= 1 && tone <= 6);
 }
 
 /** Pull the tone digits out of numbered pinyin such as "ni3 hao3". */

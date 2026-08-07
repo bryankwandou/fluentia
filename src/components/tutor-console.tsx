@@ -8,6 +8,8 @@ import { WalletPanel } from "./wallet-panel";
 import { LONG_TAIL, TRACKS } from "@/lib/curriculum";
 import { ALL_MODULES, type Drill } from "@/lib/modules";
 import { analyseBlob } from "@/lib/pitch";
+import { PASS_MARK, buildQueue, cardId } from "@/lib/srs";
+import { useReviews } from "@/lib/store";
 import { cn, shortAddress } from "@/lib/utils";
 
 type Turn = { role: "user" | "assistant"; content: string };
@@ -66,6 +68,10 @@ export function TutorConsole() {
   const [wallet, setWallet] = useState("");
   const [anchoring, setAnchoring] = useState(false);
   const [anchor, setAnchor] = useState<Anchor | null>(null);
+
+  // The schedule lives in the browser and is driven by the measured score, so
+  // a card the learner keeps fumbling comes back regardless of what they claim.
+  const { reviews, ready: deckReady, record, reset: resetDeck, progress } = useReviews();
 
   const recorder = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
@@ -200,6 +206,15 @@ export function TutorConsole() {
       setTranscript(data.transcript ?? "");
       setGrade(data.grade as Grade);
       setTones((data.tones as ToneReport | null) ?? null);
+
+      // Only a set line earns a card. Open practice has nothing stable to key
+      // a schedule on, and inventing an id per recording would fill the deck
+      // with cards that can never come up again.
+      const attempted = targetLine.trim();
+      if (attempted && typeof data.grade?.score === "number") {
+        record(cardId(language, attempted), data.grade.score);
+      }
+
       setRounds((count) => count + 1);
       if (rounds >= FREE_ROUNDS) setCredits((value) => Math.max(0, value - 1));
       if (data.grade?.nextPrompt) {
@@ -247,6 +262,21 @@ export function TutorConsole() {
   const moduleDrills: Drill[] = ALL_MODULES.filter(
     (module) => module.code === level
   ).flatMap((module) => module.units.flatMap((unit) => unit.drills));
+
+  // The list the learner sees is the scheduler's queue, not the module's
+  // running order: anything overdue is pulled to the top, and unseen lines
+  // fill whatever room is left.
+  const drillById = new Map(
+    moduleDrills.map((drill) => [cardId(language, drill.target), drill])
+  );
+  const session = buildQueue(
+    reviews.filter((review) => drillById.has(review.id)),
+    moduleDrills.map((drill) => cardId(language, drill.target)),
+    12
+  ).flatMap((card) => {
+    const drill = drillById.get(card.id);
+    return drill ? [{ drill, card }] : [];
+  });
 
   function pickDrill(drill: Drill) {
     setTargetLine(drill.target);
@@ -368,24 +398,42 @@ export function TutorConsole() {
             Speaking round
           </p>
 
-          {moduleDrills.length > 0 && (
-            <div className="mt-3 max-h-32 space-y-1 overflow-y-auto pr-1">
-              {moduleDrills.slice(0, 12).map((drill) => (
+          {session.length > 0 && (
+            <div className="mt-3 max-h-40 space-y-1 overflow-y-auto pr-1">
+              {session.map(({ drill, card }) => (
                 <button
-                  key={drill.target}
+                  key={card.id}
                   type="button"
                   onClick={() => pickDrill(drill)}
                   className={cn(
-                    "block w-full rounded-lg border px-2.5 py-1.5 text-left text-[13px] transition-colors",
+                    "flex w-full items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left text-[13px] transition-colors",
                     targetLine === drill.target
                       ? "border-jade-400/50 bg-jade-500/10 text-paper"
                       : "border-line text-muted hover:border-white/20 hover:text-paper"
                   )}
                 >
-                  {drill.target}
-                  {drill.roman && (
-                    <span className="ml-2 text-[11px] text-jade-300/70">{drill.roman}</span>
-                  )}
+                  <span className="min-w-0 flex-1 truncate">
+                    {drill.target}
+                    {drill.roman && (
+                      <span className="ml-2 text-[11px] text-jade-300/70">{drill.roman}</span>
+                    )}
+                  </span>
+                  <span
+                    className={cn(
+                      "shrink-0 rounded px-1.5 py-0.5 text-[10px] uppercase tracking-[0.1em]",
+                      card.attempts === 0
+                        ? "bg-white/6 text-muted/70"
+                        : card.lastScore >= PASS_MARK
+                          ? "bg-jade-500/15 text-jade-300"
+                          : "bg-coral/15 text-coral"
+                    )}
+                  >
+                    {card.attempts === 0
+                      ? "new"
+                      : card.lastScore >= PASS_MARK
+                        ? `${card.lastScore}`
+                        : "relearn"}
+                  </span>
                 </button>
               ))}
             </div>
@@ -522,6 +570,49 @@ export function TutorConsole() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* ------------------------------------------------ review deck */}
+        {deckReady && progress.total > 0 && (
+          <div className="card p-5">
+            <div className="flex items-baseline justify-between">
+              <p className="text-xs uppercase tracking-[0.16em] text-muted/70">
+                Review deck
+              </p>
+              <button
+                type="button"
+                onClick={resetDeck}
+                className="text-[11px] text-muted/60 underline underline-offset-4 transition-colors hover:text-muted"
+              >
+                Clear
+              </button>
+            </div>
+
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {[
+                ["Learning", progress.learning],
+                ["Retained", progress.mature],
+                ["Due now", progress.dueNow],
+              ].map(([label, value]) => (
+                <div
+                  key={label as string}
+                  className="rounded-xl border border-line bg-white/[0.02] px-3 py-2.5"
+                >
+                  <p className="text-[19px] tabular-nums leading-none">{value}</p>
+                  <p className="mt-1.5 text-[11px] text-muted">{label}</p>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-3 text-[12.5px] leading-relaxed text-muted">
+              {progress.meanScore
+                ? `Averaging ${progress.meanScore} across ${progress.total} lines. `
+                : ""}
+              A line returns the day after it is passed, then after six days, and
+              from there the gap widens with every clean attempt. Anything scored
+              under {PASS_MARK} comes straight back.
+            </p>
+          </div>
+        )}
 
         {/* ------------------------------------------------ credential */}
         <div className="card p-5">
