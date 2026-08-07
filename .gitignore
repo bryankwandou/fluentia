@@ -42,5 +42,9 @@ next-env.d.ts
 !.env.example
 
 .vercel
-proofs/*.mjs
-proofs/*.cjs
+# Only the esbuild output of src/lib is generated; the *-proof.mjs scripts and
+# the runner beside them are source and belong in the repo.
+proofs/pitch.mjs
+proofs/payments.mjs
+proofs/srs.mjs
+proofs/modules.cjs
