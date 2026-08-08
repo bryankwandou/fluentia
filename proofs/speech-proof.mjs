@@ -85,13 +85,24 @@ async function grade(label, expectedPinyin) {
   form.set("voicedRatio", String(track.voicedRatio));
   form.set("voicedMs", String(track.voicedMs));
 
-  const response = await fetch(`${BASE}/api/speech`, { method: "POST", body: form });
+  // Keep-alive is refused deliberately. Node on Windows trips a libuv assertion
+  // when process.exit lands while a pooled socket is still closing, and this
+  // script makes two requests, so there is nothing to gain from reusing one.
+  const response = await fetch(`${BASE}/api/speech`, {
+    method: "POST",
+    body: form,
+    headers: { connection: "close" },
+  });
   const data = await response.json();
   console.log(`\n--- ${label} (expectedPinyin: ${expectedPinyin}) ---`);
   if (data.error) {
     console.log("error:", data.error);
     return null;
   }
+  // A quota-exhausted examiner is not a failed round. The tone figure is
+  // arithmetic on the contour and owes the model nothing, so the route hands
+  // it back on its own and the comparison below still means what it meant.
+  if (data.degraded) console.log("degraded:", data.reason);
   console.log("transcript:", JSON.stringify(data.transcript));
   console.log(
     "tones:",
@@ -108,6 +119,8 @@ async function grade(label, expectedPinyin) {
 const right = await grade("labelled with the tones it really carries", "ni3 hao3");
 const wrong = await grade("labelled with tones it does not carry", "ni1 hao4");
 
+// exitCode rather than exit(): the loop is left to drain on its own so the
+// status is reported after the sockets are gone, not on top of them.
 if (right?.tones && wrong?.tones) {
   const gap = right.tones.overall - wrong.tones.overall;
   console.log(
@@ -115,6 +128,24 @@ if (right?.tones && wrong?.tones) {
       gap > 15 ? "PASS" : "FAIL"
     }`
   );
-  process.exit(gap > 15 ? 0 : 1);
+
+  let ok = gap > 15;
+
+  // Whichever way the round went, a degraded reply has to carry a usable mark
+  // or the fallback is just a nicer-looking outage.
+  for (const [label, data] of [["correct labelling", right], ["wrong labelling", wrong]]) {
+    if (!data.degraded) continue;
+    const usable = data.grade?.tone === data.tones.overall && data.grade.score > 0;
+    console.log(
+      `degraded ${label} still scored ${data.grade?.score} on tone alone -> ${
+        usable ? "PASS" : "FAIL"
+      }`
+    );
+    ok = ok && usable;
+  }
+
+  process.exitCode = ok ? 0 : 1;
+} else {
+  console.log("\nthe grader returned no tone report -> FAIL");
+  process.exitCode = 1;
 }
-process.exit(1);

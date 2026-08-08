@@ -54,6 +54,8 @@ export function TutorConsole() {
   const [draft, setDraft] = useState("");
   const [thinking, setThinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Something the learner should know that is not a failure. */
+  const [notice, setNotice] = useState<string | null>(null);
 
   const [recording, setRecording] = useState(false);
   const [grading, setGrading] = useState(false);
@@ -179,6 +181,7 @@ export function TutorConsole() {
     setGrade(null);
     setTones(null);
     setAnchor(null);
+    setNotice(null);
 
     try {
       const form = new FormData();
@@ -206,6 +209,7 @@ export function TutorConsole() {
       setTranscript(data.transcript ?? "");
       setGrade(data.grade as Grade);
       setTones((data.tones as ToneReport | null) ?? null);
+      if (data.degraded) setNotice(String(data.reason ?? ""));
 
       // Only a set line earns a card. Open practice has nothing stable to key
       // a schedule on, and inventing an id per recording would fill the deck
@@ -672,6 +676,19 @@ export function TutorConsole() {
           }}
           onCredit={(lessons) => setCredits((value) => value + lessons)}
         />
+
+        <AnimatePresence>
+          {notice && (
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="rounded-xl border border-amber/30 bg-amber/10 px-4 py-3 text-[13px] leading-relaxed text-amber"
+            >
+              {notice}
+            </motion.p>
+          )}
+        </AnimatePresence>
 
         <AnimatePresence>
           {error && (
