@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { AUDIO_MODEL, CHAT_MODEL, getGroq, gradingSystemPrompt, safeJson } from "@/lib/groq";
-import { scoreTones, tonesFromPinyin, type MandarinTone } from "@/lib/pitch";
+import {
+  scoreTones,
+  tonesFromJyutping,
+  tonesFromPinyin,
+  type ToneSystem,
+} from "@/lib/pitch";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -38,6 +43,18 @@ const FALLBACK: Grade = {
 };
 
 /**
+ * Which tone table applies. Cantonese carries six tones written in jyutping;
+ * everything else tonal we teach is scored against Mandarin's five. A track we
+ * have no table for returns nothing rather than being scored against the wrong
+ * one, which would hand out marks that mean nothing.
+ */
+function toneSystemFor(track: string): ToneSystem | null {
+  if (/cantonese|yue/i.test(track)) return "cantonese";
+  if (/mandarin|chinese|putonghua/i.test(track)) return "mandarin";
+  return null;
+}
+
+/**
  * Three inputs decide the mark.
  *
  * Whisper turns the recording into text. The examiner model judges what was
@@ -46,6 +63,10 @@ const FALLBACK: Grade = {
  * involved — because a transcript has already discarded the pitch that tone
  * actually lives in. When that measurement exists it overrides whatever the
  * model guessed.
+ *
+ * The tone figure is worked out before anything is sent upstream, and survives
+ * an upstream failure. A rate limit on the examiner is not a reason to throw
+ * away a measurement that never needed the examiner in the first place.
  */
 export async function POST(request: Request) {
   const groq = getGroq();
@@ -79,6 +100,20 @@ export async function POST(request: Request) {
   const voicedRatio = Number(form.get("voicedRatio") ?? 0);
   const voicedMs = Number(form.get("voicedMs") ?? 0);
 
+  // Measured first, from the form alone. Nothing below can take this away.
+  const system = toneSystemFor(track);
+  const expectedTones = system
+    ? system === "cantonese"
+      ? tonesFromJyutping(expectedPinyin)
+      : tonesFromPinyin(expectedPinyin)
+    : [];
+  const tones =
+    system && expectedTones.length > 0 && contour.length > 0
+      ? scoreTones(contour, expectedTones, system)
+      : null;
+
+  const toneReport = tones ? { ...tones, measured: true as const } : null;
+
   try {
     const transcription = await groq.audio.transcriptions.create({
       file: audio,
@@ -92,18 +127,9 @@ export async function POST(request: Request) {
       return NextResponse.json({
         transcript: "",
         grade: { ...FALLBACK, verdict: "Nothing audible came through." },
-        tones: null,
+        tones: toneReport,
       });
     }
-
-    const isTonal = /mandarin|chinese|cantonese|vietnamese|thai/i.test(track);
-    const expectedTones: MandarinTone[] = isTonal
-      ? tonesFromPinyin(expectedPinyin)
-      : [];
-    const tones =
-      expectedTones.length > 0 && contour.length > 0
-        ? scoreTones(contour, expectedTones)
-        : null;
 
     const measurement = describeMeasurement({
       medianHz,
@@ -153,13 +179,53 @@ export async function POST(request: Request) {
     return NextResponse.json({
       transcript: spoken,
       grade,
-      tones: tones ? { ...tones, measured: true as const } : null,
+      tones: toneReport,
       voice: { medianHz, voicedRatio, voicedMs },
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Upstream failure.";
+
+    // The examiner is unreachable — usually a rate limit. If pitch was measured
+    // the round is still worth something: the tone mark stands on its own, and
+    // returning it lets the learner's schedule advance on the one part of the
+    // grade that was never a guess. Without a measurement there is nothing
+    // honest left to report, so the failure is passed through.
+    if (toneReport) {
+      return NextResponse.json({
+        transcript: "",
+        degraded: true,
+        reason: rateLimited(message)
+          ? "The examiner is over its quota for now, so only the tone measurement was scored."
+          : "The examiner could not be reached, so only the tone measurement was scored.",
+        grade: {
+          ...FALLBACK,
+          tone: toneReport.overall,
+          score: toneReport.overall,
+          verdict:
+            "Graded on pitch alone. Tones were measured from the recording; " +
+            "wording and fluency were not marked this round.",
+          fix: weakestSyllable(toneReport),
+        },
+        tones: toneReport,
+        voice: { medianHz, voicedRatio, voicedMs },
+      });
+    }
+
     return NextResponse.json({ error: message }, { status: 502 });
   }
+}
+
+function rateLimited(message: string) {
+  return /429|rate.?limit|quota/i.test(message);
+}
+
+/** Names the syllable that cost the most, so a degraded round still teaches. */
+function weakestSyllable(report: ToneReport) {
+  const worst = report.perSyllable.reduce((low, entry) =>
+    entry.score < low.score ? entry : low
+  );
+  const place = report.perSyllable.indexOf(worst) + 1;
+  return `Syllable ${place} scored ${worst.score} against a ${worst.name} tone. Take that one again on its own.`;
 }
 
 function parseNumbers(value: FormDataEntryValue | null) {
