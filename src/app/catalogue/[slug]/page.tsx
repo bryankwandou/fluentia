@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Reveal, Stagger, StaggerItem } from "@/components/reveal";
 import { STAGE_COPY, TRACKS, getTrack } from "@/lib/curriculum";
+import { getModule, slugifyModule } from "@/lib/modules";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -79,9 +80,23 @@ export default async function TrackPage({ params }: Params) {
         <Stagger className="mt-10 space-y-3">
           {track.levels.map((level, index) => {
             const stage = STAGE_COPY[level.stage];
+
+            // A rung either has a written module behind it or it does not.
+            // Where one exists the card opens it; where none does the card
+            // opens the tutor already set to that language and level, which is
+            // what actually teaches the rung. Nothing here is a dead card, and
+            // the badge says which of the two the learner is about to get.
+            const moduleSlug = slugifyModule(level.code);
+            const authored = getModule(moduleSlug);
+            const written = authored?.track === track.slug ? authored : null;
+            const href = written
+              ? `/modules/${moduleSlug}`
+              : `/tutor?language=${encodeURIComponent(track.language)}&level=${encodeURIComponent(level.code)}`;
+
             return (
               <StaggerItem key={level.code}>
-                <article className="card card-hover p-6">
+                <Link href={href} className="group block">
+                <article className="card card-hover p-6 transition-colors group-hover:border-jade-400/40">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="flex items-start gap-4">
                       <span className="mt-0.5 font-[family-name:var(--font-display)] text-2xl text-jade-300/60">
@@ -92,6 +107,17 @@ export default async function TrackPage({ params }: Params) {
                           <h2 className="text-base font-medium">{level.code}</h2>
                           <span className="rounded-md border border-line px-2 py-0.5 text-[11px] text-muted">
                             {stage.label}
+                          </span>
+                          <span
+                            className={
+                              written
+                                ? "rounded-md border border-jade-400/40 bg-jade-500/10 px-2 py-0.5 text-[11px] text-jade-300"
+                                : "rounded-md border border-line px-2 py-0.5 text-[11px] text-muted/70"
+                            }
+                          >
+                            {written
+                              ? `${written.units.length} written units`
+                              : "Tutor-led"}
                           </span>
                         </div>
                         <p className="mt-1 text-sm text-paper/85">{level.title}</p>
@@ -104,6 +130,9 @@ export default async function TrackPage({ params }: Params) {
                     <div className="text-right text-xs text-muted">
                       <p>{level.words.toLocaleString("en-US")} words</p>
                       <p className="mt-1">{level.hours}h of study</p>
+                      <p className="mt-2 text-jade-300/70 transition-colors group-hover:text-jade-300">
+                        {written ? "Open module →" : "Open tutor →"}
+                      </p>
                     </div>
                   </div>
 
@@ -116,6 +145,7 @@ export default async function TrackPage({ params }: Params) {
                     />
                   </div>
                 </article>
+                </Link>
               </StaggerItem>
             );
           })}
