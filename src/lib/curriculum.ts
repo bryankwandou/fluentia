@@ -53,6 +53,20 @@ const kidsLevels: Level[] = [
   { code: "K2", title: "Short sentences", stage: "starter", words: 300, hours: 30, can: "Ask for things and answer simple questions" },
 ];
 
+/**
+ * English does not run on CEFR here. The four rungs below are the four written
+ * modules that already exist for it, and the ladder is named after the exams
+ * learners are actually sitting rather than after a framework we would only be
+ * approximating. Without this track those modules were reachable at their own
+ * URL and from nowhere else — built, paid for in effort, and invisible.
+ */
+const englishLevels: Level[] = [
+  { code: "Foundation", title: "Repair work", stage: "builder", words: 2000, hours: 80, can: "Speak for two minutes and self-correct without being prompted" },
+  { code: "TOEIC 700", title: "Working proficiency", stage: "operator", words: 4000, hours: 140, can: "Handle meetings, email and negotiation at office pace" },
+  { code: "TOEIC 900", title: "Ceiling band", stage: "operator", words: 8000, hours: 220, can: "Hold the 900 band across timed papers with no weak section" },
+  { code: "TOEFL 100", title: "Academic ceiling", stage: "native", words: 12000, hours: 300, can: "Sit TOEFL at 100+ including integrated writing and speaking" },
+];
+
 export const TRACKS: Track[] = [
   {
     slug: "mandarin",
@@ -63,6 +77,17 @@ export const TRACKS: Track[] = [
     learners: "1.1B speakers",
     frameworks: ["HSK 1-6", "HSKK Speaking", "YCT Kids"],
     levels: [...kidsLevels, ...hskLevels],
+    featured: true,
+  },
+  {
+    slug: "english",
+    language: "English",
+    native: "English",
+    flagHint: "GB",
+    family: "Indo-European",
+    learners: "1.5B speakers",
+    frameworks: ["TOEFL iBT", "TOEIC", "IELTS"],
+    levels: [...kidsLevels, ...englishLevels],
     featured: true,
   },
   {

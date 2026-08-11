@@ -15,6 +15,7 @@ const OFFLINE = [
 const NETWORKED = [
   ["replay guard (devnet)", "replay-proof.mjs", "devnet"],
   ["speech pipeline (live deployment)", "speech-proof.mjs", "live"],
+  ["every catalogue destination (live deployment)", "links-proof.mjs", "live"],
 ];
 
 const wanted = process.argv.slice(2);
