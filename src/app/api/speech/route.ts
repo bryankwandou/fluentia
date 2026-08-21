@@ -4,6 +4,7 @@ import {
   scoreTones,
   tonesFromJyutping,
   tonesFromPinyin,
+  tonesFromVietnamese,
   type ToneSystem,
 } from "@/lib/pitch";
 
@@ -25,7 +26,7 @@ export type Grade = {
 
 export type ToneReport = {
   overall: number;
-  perSyllable: { tone: number; name: string; score: number }[];
+  perSyllable: { tone: number; name: string; score: number; sharedWith: string[] }[];
   measured: true;
 };
 
@@ -43,15 +44,40 @@ const FALLBACK: Grade = {
 };
 
 /**
- * Which tone table applies. Cantonese carries six tones written in jyutping;
- * everything else tonal we teach is scored against Mandarin's five. A track we
- * have no table for returns nothing rather than being scored against the wrong
- * one, which would hand out marks that mean nothing.
+ * Which tone table applies. A track we have no table for returns nothing rather
+ * than being scored against the wrong one, which would hand out marks that mean
+ * nothing — a Spanish learner graded on Mandarin contours would collect a tone
+ * figure with no referent at all.
  */
 function toneSystemFor(track: string): ToneSystem | null {
   if (/cantonese|yue/i.test(track)) return "cantonese";
+  if (/vietnamese|tiếng việt|tieng viet/i.test(track)) return "vietnamese";
   if (/mandarin|chinese|putonghua/i.test(track)) return "mandarin";
   return null;
+}
+
+/**
+ * Where each language keeps its tones.
+ *
+ * Mandarin and Cantonese hide theirs in a parallel romanisation — numbered
+ * pinyin, or jyutping — so the drill has to carry that alongside the characters
+ * or there is nothing to read. Vietnamese writes tone into the line itself, so
+ * the target text is the source and no second field is needed. Reading the
+ * romanisation field for a Vietnamese drill would find it empty and quietly
+ * score nothing, which is how a working table ends up looking broken.
+ */
+function expectedTonesFor(
+  system: ToneSystem | null,
+  prompt: string,
+  expectedPinyin: string
+) {
+  if (!system) return [];
+  if (system === "vietnamese") {
+    return tonesFromVietnamese(expectedPinyin.trim() || prompt);
+  }
+  return system === "cantonese"
+    ? tonesFromJyutping(expectedPinyin)
+    : tonesFromPinyin(expectedPinyin);
 }
 
 /**
@@ -102,11 +128,7 @@ export async function POST(request: Request) {
 
   // Measured first, from the form alone. Nothing below can take this away.
   const system = toneSystemFor(track);
-  const expectedTones = system
-    ? system === "cantonese"
-      ? tonesFromJyutping(expectedPinyin)
-      : tonesFromPinyin(expectedPinyin)
-    : [];
+  const expectedTones = expectedTonesFor(system, prompt, expectedPinyin);
   const tones =
     system && expectedTones.length > 0 && contour.length > 0
       ? scoreTones(contour, expectedTones, system)
@@ -261,11 +283,27 @@ function describeMeasurement({
       `- measured tone accuracy ${tones.overall}/100`,
       ...tones.perSyllable.map(
         (entry, index) =>
-          `  syllable ${index + 1}, expected ${entry.name} tone: ${entry.score}/100`
+          `  syllable ${index + 1}, expected ${entry.name} tone: ${entry.score}/100` +
+          (entry.sharedWith.length
+            ? ` (not separated from ${entry.sharedWith.join(" or ")})`
+            : "")
       ),
       "Use the measured tone figures as given. Do not restate them as your own",
       "estimate, and make your correction address the weakest syllable above."
     );
+
+    // A pair marked "not separated" differs by a glottal cue the pitch track
+    // never recorded. The examiner has a transcript and a number, and neither
+    // one contains that evidence — so it is told to teach the distinction
+    // rather than rule on it.
+    if (tones.perSyllable.some((entry) => entry.sharedWith.length)) {
+      lines.push(
+        "Where a syllable is marked as not separated from another tone, the",
+        "measurement cannot tell the two apart — the difference is a glottal",
+        "one and no pitch track carries it. Do not claim the learner produced",
+        "either one. Say what distinguishes them and ask for that syllable alone."
+      );
+    }
   }
 
   return lines.join("\n");

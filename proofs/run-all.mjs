@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 const OFFLINE = [
   ["tone detection, Mandarin", "tone-proof.mjs"],
   ["tone detection, Cantonese", "cantonese-proof.mjs"],
+  ["tone detection, Vietnamese", "vietnamese-proof.mjs"],
   ["settlement arithmetic", "settle-proof.mjs"],
   ["review scheduling", "srs-proof.mjs"],
   ["thirty days of a learner's deck", "deck-proof.mjs"],
