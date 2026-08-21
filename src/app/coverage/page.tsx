@@ -153,10 +153,22 @@ export default function CoveragePage() {
               tracks: HSK 1 through 6 in Mandarin, and Foundation through
               TOEFL 100 in English. Every other rung on this page runs on the
               tutor, which is grounded on the level descriptor and the track
-              rather than on authored lines. That is a real difference: the tone
-              grader needs numbered pinyin to measure against, so tone scoring
-              on a tutor-led rung falls back to whatever romanisation the model
-              supplies for the line it just set.
+              rather than on authored lines. That is a real difference for the
+              two Chinese ladders: the tone grader reads its target out of
+              numbered pinyin or jyutping, so on a tutor-led rung it is working
+              from whatever romanisation the model supplied for the line it just
+              set rather than from a line that was checked in advance.
+            </p>
+            <p className="mt-3 text-[13.5px] leading-relaxed text-muted">
+              Vietnamese does not have that problem, because Vietnamese writes
+              its tones into the line itself and the grader reads them straight
+              off the text. Two of its six are still marked as shared rather than
+              separated: huyền against nặng, and sắc against ngã. Each of those
+              pairs is told apart by a catch in the throat, not by a change in
+              pitch, and pitch is the whole of what gets measured here. Both
+              members are held to one target and the result says which
+              distinction went unjudged, which is a smaller claim than the one a
+              confident-looking number would have made.
             </p>
             <p className="mt-3 text-[13.5px] leading-relaxed text-muted">
               A further {LONG_TAIL.length} languages are reachable in the tutor

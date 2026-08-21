@@ -35,7 +35,13 @@ type Anchor = {
 
 type ToneReport = {
   overall: number;
-  perSyllable: { tone: number; name: string; score: number }[];
+  perSyllable: {
+    tone: number;
+    name: string;
+    score: number;
+    /** Tones held to the same target because pitch alone cannot split them. */
+    sharedWith?: string[];
+  }[];
   measured: true;
 };
 
@@ -524,7 +530,23 @@ export function TutorConsole() {
                         <span className="w-4 text-[11px] tabular-nums text-muted">
                           {index + 1}
                         </span>
-                        <span className="w-20 text-[12px] text-muted">{entry.name}</span>
+                        <span className="w-20 text-[12px] text-muted">
+                          {entry.name}
+                          {/* A mark on one of a merged pair is not a verdict on
+                              the pair. Saying so here is cheaper than letting a
+                              learner read a good score as confirmation they hit
+                              a distinction nothing measured. */}
+                          {entry.sharedWith?.length ? (
+                            <span
+                              className="ml-1 cursor-help text-amber-300/70"
+                              title={`Scored the same as ${entry.sharedWith.join(
+                                " and "
+                              )}. The difference between them is a glottal one, and pitch cannot show it.`}
+                            >
+                              ~
+                            </span>
+                          ) : null}
+                        </span>
                         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/6">
                           <motion.div
                             className="h-full rounded-full bg-jade-400"
@@ -539,6 +561,18 @@ export function TutorConsole() {
                       </div>
                     ))}
                   </div>
+
+                  {/* A title attribute never opens on a touch screen, so the
+                      caveat is written out as well rather than hidden in a
+                      hover the phone half of the traffic cannot reach. */}
+                  {tones.perSyllable.some((entry) => entry.sharedWith?.length) && (
+                    <p className="mt-2.5 border-t border-jade-400/15 pt-2 text-[11px] leading-relaxed text-muted">
+                      Rows marked <span className="text-amber-300/70">~</span> share a
+                      score with a neighbouring tone. What separates those is a catch in
+                      the throat rather than a change in pitch, and pitch is all this
+                      reads — so the mark covers the melody and stops there.
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -743,6 +777,6 @@ function firstTargetLine(reply: string) {
   const line = reply
     .split("\n")
     .map((entry) => entry.trim())
-    .find((entry) => entry.length > 1 && /[^ -]/.test(entry));
+    .find((entry) => entry.length > 1 && /[^-]/.test(entry));
   return line?.replace(/^[-*\d.\s]+/, "") ?? "";
 }
