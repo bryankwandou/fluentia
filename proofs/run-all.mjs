@@ -15,6 +15,9 @@ const OFFLINE = [
 ];
 
 const NETWORKED = [
+  // First, because every suite under it is a claim about a URL rather than
+  // about this working tree.
+  ["the audited URL is serving a known commit", "deployed-proof.mjs", "live"],
   ["provider models still exist", "model-proof.mjs", "live"],
   ["replay guard (devnet)", "replay-proof.mjs", "devnet"],
   ["speech pipeline (live deployment)", "speech-proof.mjs", "live"],
