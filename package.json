@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "proofs:build": "esbuild src/lib/pitch.ts --format=esm --outfile=proofs/pitch.mjs && esbuild src/lib/payments.ts --format=esm --outfile=proofs/payments.mjs && esbuild src/lib/srs.ts --format=esm --outfile=proofs/srs.mjs && esbuild src/lib/modules.ts --format=cjs --outfile=proofs/modules.cjs && esbuild src/lib/curriculum.ts --format=esm --outfile=proofs/curriculum.mjs",
+    "proofs:build": "esbuild src/lib/pitch.ts --format=esm --outfile=proofs/pitch.mjs && esbuild src/lib/payments.ts --format=esm --outfile=proofs/payments.mjs && esbuild src/lib/srs.ts --format=esm --outfile=proofs/srs.mjs && esbuild src/lib/modules.ts --format=cjs --outfile=proofs/modules.cjs && esbuild src/lib/curriculum.ts --format=esm --outfile=proofs/curriculum.mjs && esbuild src/lib/groq.ts --format=esm --outfile=proofs/groq.mjs",
     "test": "npm run proofs:build && node proofs/run-all.mjs",
     "test:all": "npm run proofs:build && node --env-file=.env.local proofs/run-all.mjs --all"
   },

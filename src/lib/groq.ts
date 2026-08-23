@@ -1,6 +1,17 @@
 import Groq from "groq-sdk";
 
-export const CHAT_MODEL = "llama-3.3-70b-versatile";
+/**
+ * Hosted models get retired, and when one does every call fails with a 404 that
+ * looks nothing like an outage. llama-3.3-70b-versatile was withdrawn while it
+ * was still named here: the tutor returned an error on every turn, the speech
+ * grader quietly fell back to scoring pitch alone, and nothing said so. It
+ * stayed that way for weeks because no test asked whether the model still
+ * existed.
+ *
+ * model-proof checks these two names against the account's model list, so a
+ * retirement now fails a suite instead of degrading the product in silence.
+ */
+export const CHAT_MODEL = "openai/gpt-oss-120b";
 export const AUDIO_MODEL = "whisper-large-v3-turbo";
 
 let client: Groq | null = null;

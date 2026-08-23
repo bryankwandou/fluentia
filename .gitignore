@@ -49,3 +49,4 @@ proofs/payments.mjs
 proofs/srs.mjs
 proofs/curriculum.mjs
 proofs/modules.cjs
+proofs/groq.mjs
