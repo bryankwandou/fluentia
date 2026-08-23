@@ -14,6 +14,7 @@ const OFFLINE = [
 ];
 
 const NETWORKED = [
+  ["provider models still exist", "model-proof.mjs", "live"],
   ["replay guard (devnet)", "replay-proof.mjs", "devnet"],
   ["speech pipeline (live deployment)", "speech-proof.mjs", "live"],
   ["every catalogue destination (live deployment)", "links-proof.mjs", "live"],
