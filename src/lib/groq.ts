@@ -14,6 +14,21 @@ import Groq from "groq-sdk";
 export const CHAT_MODEL = "openai/gpt-oss-120b";
 export const AUDIO_MODEL = "whisper-large-v3-turbo";
 
+/**
+ * gpt-oss thinks before it answers, and the thinking is billed against the same
+ * max_tokens budget as the reply. On the default effort the grader spent
+ * between 233 and 428 tokens of a 500 token budget reasoning about a two
+ * syllable line; when it ran over, the reply came back with empty content and
+ * the route reported the examiner as unreachable. The learner saw a tone-only
+ * mark and no explanation, which is indistinguishable from the model being
+ * withdrawn.
+ *
+ * Held at low effort the same call settles at 166 to 183 tokens, leaving the
+ * budget to the answer. Both callers pass this, and both leave room to spare on
+ * top of it.
+ */
+export const REASONING = { reasoning_effort: "low" } as const;
+
 let client: Groq | null = null;
 
 export function getGroq() {

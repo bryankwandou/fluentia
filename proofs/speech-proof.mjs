@@ -131,17 +131,32 @@ if (right?.tones && wrong?.tones) {
 
   let ok = gap > 15;
 
-  // Whichever way the round went, a degraded reply has to carry a usable mark
-  // or the fallback is just a nicer-looking outage.
+  // Two separate things are checked here, and for a while only the second one
+  // was.
+  //
+  // The fallback has to hold: a degraded reply still has to carry a usable
+  // mark, or it is an outage wearing better clothes. That much was already
+  // asserted, and it passed - which is precisely how the examiner went missing
+  // in production without a suite noticing. Every live round came back
+  // degraded, every degraded round carried a tone score, and the proof called
+  // it a pass.
+  //
+  // So degradation is now a failure in its own right. Against the live
+  // deployment the examiner is supposed to answer; if it does not, the reason
+  // is printed and the suite goes red whether the fallback behaved or not.
   for (const [label, data] of [["correct labelling", right], ["wrong labelling", wrong]]) {
-    if (!data.degraded) continue;
+    if (!data.degraded) {
+      console.log(`examiner answered on ${label} -> PASS`);
+      continue;
+    }
     const usable = data.grade?.tone === data.tones.overall && data.grade.score > 0;
     console.log(
       `degraded ${label} still scored ${data.grade?.score} on tone alone -> ${
         usable ? "PASS" : "FAIL"
       }`
     );
-    ok = ok && usable;
+    console.log(`examiner did not answer on ${label} -> FAIL  (${data.reason})`);
+    ok = false;
   }
 
   process.exitCode = ok ? 0 : 1;

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { CHAT_MODEL, getGroq, tutorSystemPrompt } from "@/lib/groq";
+import { CHAT_MODEL, REASONING, getGroq, tutorSystemPrompt } from "@/lib/groq";
 import { syllabusFor } from "@/lib/modules";
 
 export const runtime = "nodejs";
@@ -42,7 +42,8 @@ export async function POST(request: Request) {
     const completion = await groq.chat.completions.create({
       model: CHAT_MODEL,
       temperature: 0.6,
-      max_tokens: 400,
+      max_tokens: 900,
+      ...REASONING,
       messages: [
         { role: "system", content: tutorSystemPrompt(track, level, age, syllabusFor(level)) },
         ...history,
