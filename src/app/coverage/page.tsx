@@ -173,7 +173,7 @@ export default function CoveragePage() {
             <p className="mt-3 text-[13.5px] leading-relaxed text-muted">
               A further {LONG_TAIL.length} languages are reachable in the tutor
               without a ladder of their own. They are listed on the catalogue as
-              what they are — conversation practice — and are deliberately absent
+              what they are, conversation practice, and are deliberately absent
               from the table above, which counts rungs, not languages.
             </p>
           </div>

@@ -50,3 +50,6 @@ proofs/srs.mjs
 proofs/curriculum.mjs
 proofs/modules.cjs
 proofs/groq.mjs
+
+# local agent tooling pointer, not part of the project
+CLAUDE.md

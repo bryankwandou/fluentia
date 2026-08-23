@@ -7,38 +7,38 @@ const PILLARS = [
   {
     tag: "Grading",
     title: "It listens, then it marks you down",
-    body: "Recordings pass through Whisper, then an examiner model scores accuracy, pronunciation, tone and fluency as four separate numbers. A weak attempt gets a weak score. Nothing is rounded up to keep you comfortable.",
+    body: "Whisper transcribes, then an examiner scores accuracy, pronunciation, tone and fluency as four separate numbers. Nothing is rounded up to keep you comfortable.",
   },
   {
     tag: "Curriculum",
     title: "The ladder does not stop at tourist phrases",
-    body: "Mandarin runs the full HSK 1 to 6 climb alongside YCT for children. Other tracks map onto CEFR A1 to C2, JLPT and TOPIK. The syllabus follows what the exam boards actually publish.",
+    body: "Mandarin runs HSK 1 to 6 with YCT alongside it for children. Other tracks follow CEFR, JLPT and TOPIK as the boards publish them.",
   },
   {
     tag: "Proof",
     title: "A result you keep after you cancel",
-    body: "Clear a level and the score, the level and a fingerprint of the graded attempt are written to Solana under your wallet. The record outlives our servers.",
+    body: "Clear a level and the score, the level and a fingerprint of the attempt go to Solana under your wallet. The record outlives our servers.",
   },
   {
     tag: "Money",
     title: "Pay for the lesson, not the calendar",
-    body: "Fund a small USDC balance and each finished lesson draws from it. Stop for three months and you owe nothing. Whatever is left withdraws on request.",
+    body: "Each finished lesson draws from a small USDC balance. Stop for three months and you owe nothing; what is left withdraws on request.",
   },
 ];
 
 const LADDER = [
-  { age: "3-6", label: "Sound play", body: "Songs and picture prompts. No reading, no keyboard, and no reward loop engineered to hook a child." },
-  { age: "7-12", label: "Story lessons", body: "Short narratives answered out loud, with progress notes a parent can read in under a minute." },
-  { age: "Teen+", label: "Grammar in use", body: "Rules taught inside conversation instead of handed over as tables to memorise." },
-  { age: "Work", label: "Operating level", body: "Meetings, negotiation and written correspondence marked on register, not vocabulary count." },
-  { age: "Exam", label: "Certification tier", body: "HSK 6, CEFR C2, JLPT N1. Timed drills, essay marking and a mock oral with an unforgiving rubric." },
+  { age: "3-6", label: "Sound play", body: "Songs and picture prompts. No reading, no keyboard, no reward loop built to hook a child." },
+  { age: "7-12", label: "Story lessons", body: "Short narratives answered out loud, with progress notes a parent reads in a minute." },
+  { age: "Teen+", label: "Grammar in use", body: "Rules taught inside conversation rather than handed over as tables to memorise." },
+  { age: "Work", label: "Operating level", body: "Meetings, negotiation and correspondence, marked on register rather than vocabulary count." },
+  { age: "Exam", label: "Certification tier", body: "HSK 6, CEFR C2, JLPT N1. Timed drills, essay marking, a mock oral with an unforgiving rubric." },
 ];
 
 const STEPS = [
-  { n: "01", title: "Pick a language and a rung", body: "Or sit the two-minute placement so the tutor stops spending your time on material you already own." },
-  { n: "02", title: "Speak the line you are given", body: "One tap records. Transcript and four sub-scores land within a couple of seconds." },
-  { n: "03", title: "Clear the level", body: "Reach sixty or better across the level checkpoints and the credential unlocks." },
-  { n: "04", title: "Anchor it to your wallet", body: "The record is written to Solana devnet. Hand over the signature and anyone can read it back." },
+  { n: "01", title: "Pick a language and a rung", body: "Or sit the two-minute placement, so the tutor stops spending your time on material you already own." },
+  { n: "02", title: "Speak the line you are given", body: "One tap records. Transcript and four sub-scores land in a couple of seconds." },
+  { n: "03", title: "Clear the level", body: "Sixty or better across the checkpoints unlocks the credential." },
+  { n: "04", title: "Anchor it to your wallet", body: "The record goes to Solana devnet. Hand over the signature and anyone can read it back." },
 ];
 
 export default function HomePage() {
@@ -50,7 +50,6 @@ export default function HomePage() {
       {/* ------------------------------------------------------------ hero */}
       <section className="relative overflow-hidden">
         <div className="aurora" />
-        <div className="grid-veil" />
 
         <div className="relative mx-auto max-w-6xl px-5 pb-20 pt-16 sm:pt-24">
           <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
@@ -74,11 +73,11 @@ export default function HomePage() {
 
               <Reveal delay={0.12}>
                 <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-muted">
-                  Fluentia is a speaking tutor that marks you the way an examiner
-                  would, across more than two hundred languages — from a
-                  four-year-old copying sounds to an adult sitting HSK 6. Clear a
-                  level and the result is written to a public ledger, which makes
-                  it worth something away from this website.
+                  A speaking tutor that marks you the way an examiner would,
+                  across two hundred languages and every rung from a child
+                  copying sounds to an adult sitting HSK 6. Clear a level and the
+                  result is written to a public ledger, so it still means
+                  something away from this site.
                 </p>
               </Reveal>
 
@@ -116,9 +115,7 @@ export default function HomePage() {
             </div>
 
             <Reveal delay={0.2} y={28}>
-              <div className="drift">
-                <ToneLab />
-              </div>
+              <ToneLab />
             </Reveal>
           </div>
         </div>
@@ -138,7 +135,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-5 py-24">
         <Reveal>
           <h2 className="max-w-2xl text-[clamp(1.7rem,3.4vw,2.5rem)] font-semibold leading-tight tracking-[-0.03em]">
-            Four things most language apps get wrong, handled differently here
+            Four things most language apps get wrong
           </h2>
         </Reveal>
 
@@ -167,7 +164,7 @@ export default function HomePage() {
               One catalogue, five life stages
             </p>
             <h2 className="mt-3 max-w-2xl text-[clamp(1.7rem,3.4vw,2.5rem)] font-semibold leading-tight tracking-[-0.03em]">
-              A toddler and a candidate sitting HSK 6 use the same account
+              A toddler and an HSK 6 candidate share one account
             </h2>
           </Reveal>
 
@@ -230,7 +227,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-5 py-24">
           <Reveal>
             <h2 className="max-w-2xl text-[clamp(1.7rem,3.4vw,2.5rem)] font-semibold leading-tight tracking-[-0.03em]">
-              From opening the page to holding a result someone else can check
+              From a first spoken line to a result someone else can check
             </h2>
           </Reveal>
 
@@ -263,9 +260,9 @@ export default function HomePage() {
             </h2>
             <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-muted">
               <p>
-                Language schools close. Apps get shut down. When that happens the
-                PDF you were issued becomes a picture of a claim nobody can check,
-                and the person who did the work absorbs the loss.
+                Language schools close and apps shut down. The PDF you were
+                issued becomes a picture of a claim nobody can check, and the
+                person who did the work absorbs the loss.
               </p>
               <p>
                 Fluentia writes the level, the score and a hash of the graded
@@ -312,11 +309,11 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-3xl px-5 py-28 text-center">
           <Reveal>
             <h2 className="text-[clamp(1.9rem,4vw,3rem)] font-semibold leading-tight tracking-[-0.035em]">
-              Say one sentence and see what the examiner makes of it
+              Say one line and see what the examiner makes of it
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-[16px] leading-relaxed text-muted">
-              Three graded rounds cost nothing and need no wallet. If the feedback
-              is not sharper than what you are used to, close the tab.
+              Three graded rounds, no wallet, no cost. If the feedback is not
+              sharper than what you are used to, close the tab.
             </p>
             <Link
               href="/tutor"

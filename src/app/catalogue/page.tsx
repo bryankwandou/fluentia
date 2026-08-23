@@ -23,8 +23,8 @@ export default function CataloguePage() {
           <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-muted">
             A mapped track carries the published syllabus for its exam board:
             word counts, study hours, and the specific things you should be able
-            to do at each rung. Languages outside that set still work — the tutor
-            grades them, they just have no certification ladder attached yet.
+            to do at each rung. Languages outside that set still work. The tutor
+            grades them; they simply have no certification ladder attached yet.
           </p>
         </Reveal>
 
