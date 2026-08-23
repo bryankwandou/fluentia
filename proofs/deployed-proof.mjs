@@ -69,4 +69,9 @@ if (build?.commit && build.commit !== "local") {
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);
-process.exit(fail ? 1 : 0);
+
+// exitCode, not exit(): Node on Windows trips a libuv assertion when the
+// process tears down while a socket from the fetch above is still closing, and
+// the suite reads that crash as a failed proof. Setting the code lets the loop
+// drain and the status is reported once the socket has gone.
+process.exitCode = fail ? 1 : 0;
