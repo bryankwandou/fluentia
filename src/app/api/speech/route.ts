@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { AUDIO_MODEL, CHAT_MODEL, getGroq, gradingSystemPrompt, safeJson } from "@/lib/groq";
+import { AUDIO_MODEL, CHAT_MODEL, REASONING, getGroq, gradingSystemPrompt, safeJson } from "@/lib/groq";
 import {
   scoreTones,
   tonesFromJyutping,
@@ -163,7 +163,8 @@ export async function POST(request: Request) {
     const completion = await groq.chat.completions.create({
       model: CHAT_MODEL,
       temperature: 0.2,
-      max_tokens: 500,
+      max_tokens: 900,
+      ...REASONING,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: gradingSystemPrompt(track, level) },
