@@ -29,6 +29,26 @@ export default async function TrackPage({ params }: Params) {
   const totalHours = track.levels.reduce((sum, level) => sum + level.hours, 0);
   const topWords = track.levels.at(-1)?.words ?? 0;
 
+  // The hours and the vocabulary above describe what the exam boards ask of a
+  // candidate. They are not a description of what has been authored here, and
+  // for a long time this page presented them as though they were - 240 hours
+  // and five thousand words sitting over a rung holding thirty-six drill
+  // lines. The counts below are the written material that actually exists, so
+  // the two claims sit side by side and the reader can tell them apart.
+  const authored = track.levels.reduce(
+    (totals, level) => {
+      const found = getModule(slugifyModule(level.code));
+      if (found?.track !== track.slug) return totals;
+      return {
+        rungs: totals.rungs + 1,
+        lines:
+          totals.lines +
+          found.units.reduce((sum, unit) => sum + unit.drills.length, 0),
+      };
+    },
+    { rungs: 0, lines: 0 }
+  );
+
   return (
     <div className="relative overflow-hidden">
       <div className="aurora opacity-60" />
@@ -65,9 +85,17 @@ export default async function TrackPage({ params }: Params) {
           <dl className="mt-10 grid grid-cols-2 gap-6 border-y border-line py-6 sm:grid-cols-4">
             {[
               [String(track.levels.length), "rungs on the ladder"],
-              [`${totalHours}h`, "study hours end to end"],
-              [topWords.toLocaleString("en-US"), "words at the summit"],
-              [track.frameworks[0], "primary framework"],
+              [`${totalHours}h`, "hours the exam boards assume, not hours supplied here"],
+              [
+                topWords.toLocaleString("en-US"),
+                `words the top rung demands · ${authored.rungs} of ${track.levels.length} rungs have written units here`,
+              ],
+              [
+                authored.lines ? authored.lines.toLocaleString("en-US") : "—",
+                authored.lines
+                  ? "authored drill lines on this track; the rest is tutor-led"
+                  : "authored drill lines: this whole track is tutor-led",
+              ],
             ].map(([value, label]) => (
               <div key={label}>
                 <dt className="text-xl font-semibold tracking-tight">{value}</dt>
@@ -128,8 +156,21 @@ export default async function TrackPage({ params }: Params) {
                     </div>
 
                     <div className="text-right text-xs text-muted">
-                      <p>{level.words.toLocaleString("en-US")} words</p>
-                      <p className="mt-1">{level.hours}h of study</p>
+                      {/* Target, not inventory. These two figures come from the
+                          exam board and describe the rung a learner is climbing
+                          toward; the line under them says what is written here
+                          to climb it with. Printed bare, as they were, a rung
+                          holding thirty-six drill lines advertised five
+                          thousand words. */}
+                      <p className="text-muted/60">Target for this rung</p>
+                      <p className="mt-1">
+                        {level.words.toLocaleString("en-US")} words · {level.hours}h
+                      </p>
+                      <p className="mt-2 text-muted/60">
+                        {written
+                          ? `${written.units.reduce((sum, unit) => sum + unit.drills.length, 0)} drill lines written`
+                          : "No written lines yet"}
+                      </p>
                       <p className="mt-2 text-jade-300/70 transition-colors group-hover:text-jade-300">
                         {written ? "Open module →" : "Open tutor →"}
                       </p>
