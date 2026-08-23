@@ -21,7 +21,7 @@ const display = Instrument_Serif({
 export const metadata: Metadata = {
   metadataBase: new URL("https://fluentia.vercel.app"),
   title: {
-    default: "Fluentia — language study that leaves a record",
+    default: "Fluentia: language study that leaves a record",
     template: "%s · Fluentia",
   },
   description:
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     "verifiable credentials",
   ],
   openGraph: {
-    title: "Fluentia — language study that leaves a record",
+    title: "Fluentia: language study that leaves a record",
     description:
       "Speak, get graded, and walk away with a credential anyone can verify on chain.",
     url: "https://fluentia.vercel.app",
