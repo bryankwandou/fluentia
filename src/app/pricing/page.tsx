@@ -86,10 +86,8 @@ export default function PricingPage() {
                 <Link
                   href="/tutor"
                   className={cn(
-                    "mt-7 rounded-xl px-4 py-3 text-center text-sm font-medium transition-transform hover:-translate-y-0.5",
-                    plan.highlight
-                      ? "bg-jade-400 text-ink-950"
-                      : "border border-line text-paper"
+                    "btn mt-7 px-4 py-3 text-center text-sm",
+                    plan.highlight ? "btn-primary" : "btn-ghost"
                   )}
                 >
                   {plan.cta}

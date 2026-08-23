@@ -71,13 +71,13 @@ export default function ManifestoPage() {
           <div className="mt-14 flex flex-wrap gap-3">
             <Link
               href="/tutor"
-              className="rounded-xl bg-jade-400 px-5 py-3 text-sm font-medium text-ink-950 transition-transform hover:-translate-y-0.5"
+              className="btn btn-primary px-5 py-3 text-sm"
             >
               Test the grading yourself
             </Link>
             <Link
               href="https://github.com/VincentiusBryanKwandou/fluentia"
-              className="rounded-xl border border-line px-5 py-3 text-sm transition-colors hover:border-white/25"
+              className="btn btn-ghost px-5 py-3 text-sm"
             >
               Read the source
             </Link>

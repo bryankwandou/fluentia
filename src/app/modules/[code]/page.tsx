@@ -50,7 +50,7 @@ export default async function ModulePage({ params }: Params) {
 
             <Link
               href={`/tutor?level=${encodeURIComponent(module.code)}`}
-              className="rounded-xl bg-jade-400 px-5 py-3 text-sm font-medium text-ink-950 transition-transform hover:-translate-y-0.5"
+              className="btn btn-primary px-5 py-3 text-sm"
             >
               Drill this module
             </Link>

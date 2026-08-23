@@ -85,13 +85,13 @@ export default function HomePage() {
                 <div className="mt-8 flex flex-wrap items-center gap-3">
                   <Link
                     href="/tutor"
-                    className="rounded-xl bg-jade-400 px-5 py-3 text-sm font-medium text-ink-950 transition-transform hover:-translate-y-0.5"
+                    className="btn btn-primary px-5 py-3 text-sm"
                   >
                     Speak your first line
                   </Link>
                   <Link
                     href="/catalogue"
-                    className="rounded-xl border border-line px-5 py-3 text-sm text-paper transition-colors hover:border-white/25"
+                    className="btn btn-ghost px-5 py-3 text-sm"
                   >
                     Browse the catalogue
                   </Link>
@@ -273,7 +273,7 @@ export default function HomePage() {
             </div>
             <Link
               href="/credentials"
-              className="mt-7 inline-flex rounded-xl border border-line px-5 py-3 text-sm transition-colors hover:border-jade-400/50"
+              className="btn btn-ghost mt-7 inline-flex px-5 py-3 text-sm"
             >
               Verify a credential
             </Link>
@@ -317,7 +317,7 @@ export default function HomePage() {
             </p>
             <Link
               href="/tutor"
-              className="mt-9 inline-flex rounded-xl bg-jade-400 px-6 py-3.5 text-sm font-medium text-ink-950 transition-transform hover:-translate-y-0.5"
+              className="btn btn-primary mt-9 inline-flex px-6 py-3.5 text-sm"
             >
               Open the tutor
             </Link>

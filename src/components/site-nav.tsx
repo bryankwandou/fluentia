@@ -64,7 +64,7 @@ export function SiteNav() {
         <div className="flex items-center gap-2">
           <Link
             href="/tutor"
-            className="hidden rounded-lg bg-jade-400 px-4 py-2 text-sm font-medium text-ink-950 transition-transform hover:-translate-y-0.5 sm:inline-flex"
+            className="btn btn-primary hidden px-4 py-2 text-sm sm:inline-flex"
           >
             Open the tutor
           </Link>
