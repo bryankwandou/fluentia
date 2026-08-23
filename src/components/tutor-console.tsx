@@ -394,7 +394,7 @@ export function TutorConsole() {
           <button
             type="submit"
             disabled={thinking || !draft.trim()}
-            className="rounded-xl bg-jade-400 px-4 py-2.5 text-sm font-medium text-ink-950 disabled:opacity-35"
+            className="btn btn-primary px-4 py-2.5 text-sm"
           >
             Send
           </button>

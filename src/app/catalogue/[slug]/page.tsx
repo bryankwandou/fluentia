@@ -74,7 +74,7 @@ export default async function TrackPage({ params }: Params) {
 
             <Link
               href={`/tutor?language=${encodeURIComponent(track.language)}&level=${encodeURIComponent(track.levels[0].code)}`}
-              className="rounded-xl bg-jade-400 px-5 py-3 text-sm font-medium text-ink-950 transition-transform hover:-translate-y-0.5"
+              className="btn btn-primary px-5 py-3 text-sm"
             >
               Start this track
             </Link>

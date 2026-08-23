@@ -74,7 +74,7 @@ export function VerifyPanel() {
         <button
           type="submit"
           disabled={busy || !signature.trim()}
-          className="rounded-xl bg-jade-400 px-5 py-2.5 text-sm font-medium text-ink-950 disabled:opacity-35"
+          className="btn btn-primary px-5 py-2.5 text-sm"
         >
           {busy ? "Reading chain…" : "Verify"}
         </button>

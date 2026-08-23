@@ -173,7 +173,7 @@ export function WalletPanel({
           type="button"
           onClick={connect}
           disabled={busy === "connect"}
-          className="mt-4 w-full rounded-xl bg-jade-400 px-4 py-2.5 text-sm font-medium text-ink-950 disabled:opacity-40"
+          className="btn btn-primary mt-4 w-full px-4 py-2.5 text-sm"
         >
           {busy === "connect" ? "Waiting on the wallet…" : "Connect a devnet wallet"}
         </button>

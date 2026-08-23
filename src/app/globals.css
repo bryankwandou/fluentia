@@ -104,6 +104,52 @@ body {
   border-color: rgba(52, 211, 153, 0.28);
 }
 
+/* Two button shapes, defined once.
+ *
+ * There were six copies of the primary button and three of the ghost, and they
+ * had drifted apart: most lifted half a step on hover, one warmed its border to
+ * jade and another to white, and the ones inside the tutor and wallet panels
+ * did nothing at all on hover. Size still belongs at the call site, since a nav
+ * button and a hero button are not the same size, but the colour, the radius
+ * and the hover behaviour now come from here.
+ *
+ * The lift is gone for the reason it left the cards: a control that jumps away
+ * from the cursor is a template default, not a decision anyone made. */
+/* Deliberately no display property: the nav button carries `hidden
+ * sm:inline-flex`, and this stylesheet loads after Tailwind, so setting display
+ * here would win the cascade and the button would show on mobile. Layout stays
+ * with the call site; only colour, radius and hover live here. */
+.btn {
+  border-radius: 12px;
+  font-weight: 500;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--jade-400);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: var(--jade-400);
+  color: var(--ink-950);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--jade-300);
+}
+.btn-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  border: 1px solid var(--line);
+  color: var(--paper);
+}
+.btn-ghost:hover:not(:disabled) {
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
 .pill {
   display: inline-flex;
   align-items: center;
