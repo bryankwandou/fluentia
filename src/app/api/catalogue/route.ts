@@ -55,8 +55,33 @@ export function GET() {
   const levels = tracks.flatMap((track) => track.levels);
   const written = levels.filter((level) => level.material === "written");
 
+  // Every address the catalogue can send a reader to, flattened and deduped.
+  //
+  // /audit walks this list from the visitor's own browser, which is the only
+  // form of "the links work" worth anything to someone who was told they did
+  // and found otherwise. Serving the list rather than hard-coding it in the
+  // page means a level added tomorrow is audited tomorrow, and a level removed
+  // stops being claimed.
+  const destinations = [
+    ...new Set([
+      "/",
+      "/catalogue",
+      "/coverage",
+      "/credentials",
+      "/kids",
+      "/manifesto",
+      "/modules",
+      "/pricing",
+      "/tutor",
+      ...tracks.map((track) => track.url),
+      ...levels.map((level) => level.url),
+      ...ALL_MODULES.map((module) => `/modules/${slugifyModule(module.code)}`),
+    ]),
+  ];
+
   return NextResponse.json({
     generated: "static, at build time",
+    destinations,
     totals: {
       tracks: tracks.length,
       levels: levels.length,

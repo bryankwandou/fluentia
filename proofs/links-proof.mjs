@@ -26,6 +26,7 @@ const add = (path, note) => targets.push({ path, note });
 
 for (const path of [
   "/",
+  "/audit",
   "/catalogue",
   "/coverage",
   "/credentials",

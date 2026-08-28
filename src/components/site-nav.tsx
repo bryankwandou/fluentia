@@ -11,6 +11,10 @@ const LINKS = [
   { href: "/tutor", label: "Tutor" },
   { href: "/credentials", label: "Credentials" },
   { href: "/pricing", label: "Pricing" },
+  // Not a marketing page, and in the nav on purpose. The site's claim is that
+  // a result holds up away from here, which is worth nothing if the way to
+  // check it is buried.
+  { href: "/audit", label: "Audit" },
 ];
 
 export function SiteNav() {
