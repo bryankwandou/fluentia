@@ -14,6 +14,7 @@ const COLUMNS = [
   {
     title: "Proof",
     links: [
+      { href: "/audit", label: "Audit this site" },
       { href: "/credentials", label: "Credential registry" },
       { href: "/credentials#verify", label: "Verify a signature" },
       { href: "/pricing", label: "What a lesson costs" },
