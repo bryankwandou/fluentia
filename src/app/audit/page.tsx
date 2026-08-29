@@ -88,6 +88,16 @@ export default function AuditPage() {
             people who built it. The check at the top runs by itself when this
             page opens. The rest can be run from a clone in about two minutes.
           </p>
+          <p className="mt-3.5 text-[13px] text-muted/70">
+            Tersedia juga sebagai{" "}
+            <Link
+              href="/audit/ringkasan"
+              className="text-jade-300 underline underline-offset-4"
+            >
+              ringkasan dalam Bahasa Indonesia
+            </Link>
+            .
+          </p>
         </Reveal>
 
         <div className="mt-10">
