@@ -107,4 +107,25 @@ console.log(
   }  [${rungPaths.size} distinct destinations behind ${rungs.length} cards]`
 );
 
-process.exitCode = broken.length ? 1 : 0;
+// /audit walks the list the deployment serves; this file builds its own from
+// the repository. If those two ever differ, the page is auditing a set the
+// repository does not describe, and the count a reader is shown stops meaning
+// what it says. Comparing them is the only way that stays true on its own.
+let agrees = false;
+try {
+  const served = await (await fetch(`${BASE}/api/catalogue`)).json();
+  const there = new Set(served.destinations ?? []);
+  const missing = [...seen].filter((path) => !there.has(path));
+  const extra = [...there].filter((path) => !seen.has(path));
+  agrees = missing.length === 0 && extra.length === 0;
+
+  for (const path of missing) console.log(`  only in the repository: ${path}`);
+  for (const path of extra) console.log(`  only in the served list:  ${path}`);
+  console.log(
+    `the list /audit walks matches this one: ${agrees ? "PASS" : "FAIL"}  [${there.size} served, ${seen.size} built here]`
+  );
+} catch (cause) {
+  console.log(`the list /audit walks matches this one: FAIL (${cause})`);
+}
+
+process.exitCode = broken.length || !agrees ? 1 : 0;

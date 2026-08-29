@@ -21,8 +21,8 @@ export const metadata: Metadata = {
 const CLAIMS = [
   {
     claim: "Every module and every rung opens a real page.",
-    check: "The audit above, run in your browser. Also `links-proof`, which rebuilds the same address list from the repository and asks the deployment for each one.",
-    fails: "The failing address is printed with its status code. The suite exits non-zero.",
+    check: "The audit above, run in your browser. Also `links-proof`, which rebuilds the address list from the repository, asks the deployment for each one, and compares its list against the one the audit above walked.",
+    fails: "The failing address is printed with its status code. If the two lists have drifted, that is reported as a failure of its own, because a count is worth nothing when the set behind it is unclear.",
   },
   {
     claim: "Tone scoring measures pitch, and can tell tones apart.",
