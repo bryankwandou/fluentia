@@ -65,6 +65,10 @@ export function GET() {
   const destinations = [
     ...new Set([
       "/",
+      // The audit page and this document are in the list on purpose. A check
+      // that exempts itself is the first place a reader should look.
+      "/audit",
+      "/api/catalogue",
       "/catalogue",
       "/coverage",
       "/credentials",
