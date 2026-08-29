@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { LONG_TAIL, TRACKS } from "@/lib/curriculum";
+import { path } from "@/lib/i18n";
 import { ALL_MODULES, getModule, slugifyModule } from "@/lib/modules";
 
 export const runtime = "nodejs";
@@ -55,21 +56,22 @@ export function GET() {
   const levels = tracks.flatMap((track) => track.levels);
   const written = levels.filter((level) => level.material === "written");
 
-  // Every address the catalogue can send a reader to, flattened and deduped.
+  // Every address the catalogue can send a reader to, flattened, deduped, and
+  // mirrored into both languages.
   //
   // /audit walks this list from the visitor's own browser, which is the only
   // form of "the links work" worth anything to someone who was told they did
   // and found otherwise. Serving the list rather than hard-coding it in the
   // page means a level added tomorrow is audited tomorrow, and a level removed
-  // stops being claimed.
-  const destinations = [
+  // stops being claimed. The Indonesian mirror is walked too, because a page
+  // that exists in one language and 404s in the other is exactly the kind of
+  // half-finished translation a reader is right to suspect.
+  const pages = [
     ...new Set([
       "/",
-      // The audit page and this document are in the list on purpose. A check
-      // that exempts itself is the first place a reader should look.
+      // The audit page is in the list on purpose. A check that exempts itself
+      // is the first place a reader should look.
       "/audit",
-      "/audit/ringkasan",
-      "/api/catalogue",
       "/catalogue",
       "/coverage",
       "/credentials",
@@ -82,6 +84,12 @@ export function GET() {
       ...levels.map((level) => level.url),
       ...ALL_MODULES.map((module) => `/modules/${slugifyModule(module.code)}`),
     ]),
+  ];
+
+  const destinations = [
+    "/api/catalogue",
+    ...pages,
+    ...pages.map((page) => path("id", page)),
   ];
 
   return NextResponse.json({

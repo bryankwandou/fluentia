@@ -1,36 +1,16 @@
-import Link from "next/link";
-import { Logo } from "./logo";
+"use client";
 
-const COLUMNS = [
-  {
-    title: "Study",
-    links: [
-      { href: "/catalogue", label: "Language catalogue" },
-      { href: "/catalogue/mandarin", label: "Mandarin, HSK 1-6" },
-      { href: "/tutor", label: "Live speaking tutor" },
-      { href: "/kids", label: "Kids and early years" },
-    ],
-  },
-  {
-    title: "Proof",
-    links: [
-      { href: "/audit", label: "Audit this site" },
-      { href: "/credentials", label: "Credential registry" },
-      { href: "/credentials#verify", label: "Verify a signature" },
-      { href: "/pricing", label: "What a lesson costs" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { href: "/manifesto", label: "Why we built this" },
-      { href: "/coverage", label: "What is actually built" },
-      { href: "https://github.com/bryankwandou/fluentia", label: "Source on GitHub" },
-    ],
-  },
-];
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Logo } from "./logo";
+import { LocaleToggle } from "./locale-toggle";
+import { CHROME } from "@/copy/chrome";
+import { localeOf, path } from "@/lib/i18n";
 
 export function SiteFooter() {
+  const locale = localeOf(usePathname());
+  const copy = CHROME[locale];
+
   return (
     <footer className="border-t border-line bg-ink-900/40">
       <div className="mx-auto max-w-6xl px-5 py-14">
@@ -38,24 +18,25 @@ export function SiteFooter() {
           <div>
             <Logo />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted">
-              Study any of 200+ languages against a real examiner, then keep a
-              record of the result that outlives the app it came from.
+              {copy.blurb}
             </p>
-            <p className="mt-4 text-xs text-muted/70">
-              Running on Solana devnet. Balances are test funds, not money.
-            </p>
+            <p className="mt-4 text-xs text-muted/70">{copy.devnet}</p>
+            <div className="mt-5 flex items-center gap-2.5">
+              <span className="text-xs text-muted/70">{copy.language}</span>
+              <LocaleToggle />
+            </div>
           </div>
 
-          {COLUMNS.map((column) => (
+          {copy.columns.map((column) => (
             <div key={column.title}>
               <h3 className="text-xs uppercase tracking-[0.14em] text-muted/70">
                 {column.title}
               </h3>
               <ul className="mt-4 space-y-2.5">
                 {column.links.map((link) => (
-                  <li key={link.href}>
+                  <li key={link.to}>
                     <Link
-                      href={link.href}
+                      href={link.external ? link.to : path(locale, link.to)}
                       className="text-sm text-muted transition-colors hover:text-paper"
                     >
                       {link.label}
@@ -69,7 +50,7 @@ export function SiteFooter() {
 
         <div className="mt-12 flex flex-col gap-3 border-t border-line pt-6 text-xs text-muted/70 sm:flex-row sm:items-center sm:justify-between">
           <span>© {new Date().getFullYear()} Fluentia</span>
-          <span>Built for the Solana hackathon. Devnet only.</span>
+          <span>{copy.built}</span>
         </div>
       </div>
     </footer>

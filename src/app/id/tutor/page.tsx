@@ -3,10 +3,11 @@ import { Tutor } from "@/views/tutor";
 import { TUTOR } from "@/copy/pages";
 
 export const metadata: Metadata = {
-  title: TUTOR.en.metaTitle,
-  description: TUTOR.en.metaDescription,
+  title: TUTOR.id.metaTitle,
+  description: TUTOR.id.metaDescription,
+  alternates: { languages: { en: "/tutor", id: "/id/tutor" } },
 };
 
 export default function Page() {
-  return <Tutor locale="en" />;
+  return <Tutor locale="id" />;
 }

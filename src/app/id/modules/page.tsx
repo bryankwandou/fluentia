@@ -3,11 +3,11 @@ import { Modules } from "@/views/modules";
 import { MODULES } from "@/copy/catalogue";
 
 export const metadata: Metadata = {
-  title: MODULES.en.metaTitle,
-  description: MODULES.en.metaDescription,
+  title: MODULES.id.metaTitle,
+  description: MODULES.id.metaDescription,
   alternates: { languages: { en: "/modules", id: "/id/modules" } },
 };
 
 export default function Page() {
-  return <Modules locale="en" />;
+  return <Modules locale="id" />;
 }

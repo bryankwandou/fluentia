@@ -13,7 +13,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { code } = await params;
   const found = getModule(code);
-  if (!found) return { title: MODULE_DETAIL.en.notFound };
+  if (!found) return { title: MODULE_DETAIL.id.notFound };
   return {
     title: `${found.code}: ${found.title}`,
     description: found.summary,
@@ -27,5 +27,5 @@ export default async function Page({ params }: Params) {
   const { code } = await params;
   const found = getModule(code);
   if (!found) notFound();
-  return <ModuleDetail locale="en" module={found} />;
+  return <ModuleDetail locale="id" module={found} />;
 }

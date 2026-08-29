@@ -13,10 +13,10 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const track = getTrack(slug);
-  if (!track) return { title: TRACK.en.notFound };
+  if (!track) return { title: TRACK.id.notFound };
   return {
     title: track.language,
-    description: TRACK.en.meta(track.language, track.levels.at(-1)?.code ?? ""),
+    description: TRACK.id.meta(track.language, track.levels.at(-1)?.code ?? ""),
     alternates: {
       languages: {
         en: `/catalogue/${slug}`,
@@ -30,5 +30,5 @@ export default async function Page({ params }: Params) {
   const { slug } = await params;
   const track = getTrack(slug);
   if (!track) notFound();
-  return <Track locale="en" track={track} />;
+  return <Track locale="id" track={track} />;
 }

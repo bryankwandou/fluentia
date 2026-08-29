@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AUDIT } from "@/copy/proof";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 type Build = {
@@ -36,7 +38,9 @@ const LANES = 6;
  * It starts on its own. Requiring a click to see the evidence puts a barrier in
  * front of exactly the person who needs it.
  */
-export function LinkAudit() {
+export function LinkAudit({ locale = DEFAULT_LOCALE }: { locale?: Locale }) {
+  const copy = AUDIT[locale].widget;
+
   const [state, setState] = useState<State>({
     phase: "loading",
     total: 0,
@@ -133,7 +137,7 @@ export function LinkAudit() {
   return (
     <div className="card p-6 sm:p-8">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 className="text-lg font-medium">Every address, checked from this browser</h2>
+        <h2 className="text-lg font-medium">{copy.heading}</h2>
         <span
           className={cn(
             "rounded-md px-2 py-0.5 text-[11px]",
@@ -142,18 +146,14 @@ export function LinkAudit() {
             phase !== "done" && "bg-white/5 text-muted"
           )}
         >
-          {phase === "loading" && "reading the address list"}
-          {phase === "running" && `${checked} of ${total}`}
-          {phase === "error" && "could not run"}
-          {phase === "done" && (passed ? "pass" : `${failures.length} failed`)}
+          {phase === "loading" && copy.reading}
+          {phase === "running" && copy.of(checked, total)}
+          {phase === "error" && copy.cannotRun}
+          {phase === "done" && (passed ? copy.pass : copy.failed(failures.length))}
         </span>
       </div>
 
-      <p className="mt-2.5 text-sm leading-relaxed text-muted">
-        This ran when the page opened. It asked this deployment for every page
-        the catalogue links to, one request each, and counted what came back.
-        Nothing here was typed in ahead of time.
-      </p>
+      <p className="mt-2.5 text-sm leading-relaxed text-muted">{copy.blurb}</p>
 
       <div className="mt-6 h-1 overflow-hidden rounded-full bg-white/8">
         <div
@@ -167,10 +167,10 @@ export function LinkAudit() {
 
       <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
         {[
-          ["Addresses", total ? String(total) : "-"],
-          ["Answered 200", String(checked - failures.length)],
-          ["Did not", String(failures.length)],
-          ["Took", elapsed ? `${elapsed.toFixed(1)}s` : "-"],
+          [copy.addresses, total ? String(total) : "-"],
+          [copy.answered, String(checked - failures.length)],
+          [copy.didNot, String(failures.length)],
+          [copy.took, elapsed ? `${elapsed.toFixed(1)}s` : "-"],
         ].map(([label, value]) => (
           <div key={label}>
             <dt className="text-[11px] uppercase tracking-[0.14em] text-muted/70">
@@ -183,13 +183,11 @@ export function LinkAudit() {
 
       {failures.length > 0 && (
         <div className="mt-6 rounded-xl border border-red-500/30 bg-red-500/[0.06] p-4">
-          <p className="text-sm font-medium text-red-200">
-            These did not answer. The claim above does not hold for them.
-          </p>
+          <p className="text-sm font-medium text-red-200">{copy.failureHeading}</p>
           <ul className="mt-3 space-y-1.5">
             {failures.map((failure) => (
               <li key={failure.path} className="text-[13px] tabular-nums text-muted">
-                <span className="text-red-300">{failure.status || "no reply"}</span>
+                <span className="text-red-300">{failure.status || copy.noReply}</span>
                 {"  "}
                 {failure.path}
               </li>
@@ -204,10 +202,7 @@ export function LinkAudit() {
 
       {sample.length > 0 && (
         <div className="mt-8 border-t border-line pt-6">
-          <p className="text-sm text-muted">
-            Eleven of them, taken at even intervals through the list, if you
-            would rather click than take the count on trust.
-          </p>
+          <p className="text-sm text-muted">{copy.sample}</p>
           <div className="mt-3.5 flex flex-wrap gap-2">
             {sample.map((path) => (
               <a
@@ -225,12 +220,11 @@ export function LinkAudit() {
       {build && (
         <div className="mt-8 border-t border-line pt-6">
           <p className="text-sm text-muted">
-            What you just audited is commit{" "}
+            {copy.servingA}{" "}
             <span className="text-paper">{build.commit.slice(0, 7)}</span> on{" "}
-            <span className="text-paper">{build.branch}</span>, grading speech
-            through <span className="text-paper">{build.audioModel}</span>. The
-            same commit is on GitHub, so the pages that answered above can be
-            read as source.
+            <span className="text-paper">{build.branch}</span>, {copy.servingB}{" "}
+            <span className="text-paper">{build.audioModel}</span>.{" "}
+            {copy.servingC}
           </p>
         </div>
       )}
