@@ -27,7 +27,6 @@ const add = (path, note) => targets.push({ path, note });
 for (const path of [
   "/",
   "/audit",
-  "/audit/ringkasan",
   "/catalogue",
   "/coverage",
   "/credentials",
@@ -50,6 +49,14 @@ for (const track of TRACKS) {
 
 for (const module of ALL_MODULES) {
   add(`/modules/${slugifyModule(module.code)}`, `module ${module.code}`);
+}
+
+// Everything above exists in Indonesian too, at the same address under /id.
+// A page that answers in one language and 404s in the other is a half-finished
+// translation wearing a toggle, so the mirror is walked rather than assumed.
+for (const { path, note } of [...targets]) {
+  if (path.startsWith("/api/")) continue;
+  add(path === "/" ? "/id" : `/id${path}`, `${note}, id`);
 }
 
 // Same path twice tells us nothing the first visit did not.

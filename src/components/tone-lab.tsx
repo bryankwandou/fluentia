@@ -2,6 +2,8 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { TONE_LAB } from "@/copy/components";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -11,13 +13,14 @@ import { cn } from "@/lib/utils";
  * seconds without an account or a download.
  */
 const TONES = [
-  { mark: "mā", tone: 1, hanzi: "妈", gloss: "mother", path: "M4,20 L96,20", hint: "held high and flat" },
-  { mark: "má", tone: 2, hanzi: "麻", gloss: "hemp", path: "M4,34 L96,8", hint: "rises like a question" },
-  { mark: "mǎ", tone: 3, hanzi: "马", gloss: "horse", path: "M4,18 Q30,40 50,36 Q76,32 96,6", hint: "dips, then lifts" },
-  { mark: "mà", tone: 4, hanzi: "骂", gloss: "to scold", path: "M4,6 L96,36", hint: "falls sharply" },
+  { mark: "mā", tone: 1, hanzi: "妈", path: "M4,20 L96,20" },
+  { mark: "má", tone: 2, hanzi: "麻", path: "M4,34 L96,8" },
+  { mark: "mǎ", tone: 3, hanzi: "马", path: "M4,18 Q30,40 50,36 Q76,32 96,6" },
+  { mark: "mà", tone: 4, hanzi: "骂", path: "M4,6 L96,36" },
 ];
 
-export function ToneLab() {
+export function ToneLab({ locale = DEFAULT_LOCALE }: { locale?: Locale }) {
+  const copy = TONE_LAB[locale];
   const [active, setActive] = useState(0);
   const [speaking, setSpeaking] = useState(false);
   const [voiceReady, setVoiceReady] = useState(false);
@@ -50,11 +53,9 @@ export function ToneLab() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-muted/70">
-            Tone lab
+            {copy.eyebrow}
           </p>
-          <h3 className="mt-1.5 text-lg font-medium">
-            One syllable, four meanings
-          </h3>
+          <h3 className="mt-1.5 text-lg font-medium">{copy.heading}</h3>
         </div>
         <span
           className={cn(
@@ -121,16 +122,17 @@ export function ToneLab() {
             transition={{ duration: 0.25 }}
             className="mt-1 text-sm text-muted"
           >
-            <span className="text-paper">Tone {current.tone}</span> — {current.hint}.
-            It means <span className="text-paper">{current.gloss}</span>.
+            <span className="text-paper">
+              {copy.toneWord} {current.tone}
+            </span>
+            , {copy.hints[active]}. {copy.meansWord}{" "}
+            <span className="text-paper">{copy.glosses[active]}</span>.
           </motion.p>
         </AnimatePresence>
       </div>
 
       <p className="mt-4 text-xs leading-relaxed text-muted/70">
-        {voiceReady
-          ? "Tap any character to hear it. The tutor grades your attempt against this same contour."
-          : "Your browser has no Mandarin voice installed, so playback may stay silent. The contour still draws."}
+        {voiceReady ? copy.ready : copy.noVoice}
       </p>
     </div>
   );
