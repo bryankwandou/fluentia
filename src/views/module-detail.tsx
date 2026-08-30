@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Reveal, Stagger, StaggerItem } from "@/components/reveal";
 import { UnitQuiz } from "@/components/unit-quiz";
 import { MODULE_DETAIL } from "@/copy/catalogue";
-import { buildExercises } from "@/lib/exercises";
+import { buildExercises, buildModuleSession } from "@/lib/exercises";
 import type { Module } from "@/lib/modules";
 import { path, type Locale } from "@/lib/i18n";
 
@@ -41,16 +41,38 @@ export function ModuleDetail({
               </p>
             </div>
 
+            {/* The button used to open the tutor, which is the metered half
+                of the site. A reader who wants to drill a module wants the
+                questions on this page, not a conversation behind a wallet, so
+                the practice set is what the primary action starts and the
+                tutor is offered separately in its own words. */}
             <Link
               href={path(
                 locale,
                 `/tutor?level=${encodeURIComponent(module.code)}`
               )}
-              className="btn btn-primary px-5 py-3 text-sm"
+              className="text-[13px] text-muted underline underline-offset-4 hover:text-paper"
             >
-              {copy.drill}
+              {copy.tutor}
             </Link>
           </div>
+
+          {/* The primary action used to open the tutor, which is the metered
+              half of the site behind three free rounds. Someone who wants to
+              drill a module wants the questions on this page, so that is what
+              the button starts now; the tutor keeps its own link and its own
+              sentence saying what it is. */}
+          <UnitQuiz
+            locale={locale}
+            track={module.track}
+            level={module.code}
+            exercises={buildModuleSession(module)}
+            label={copy.drill}
+          />
+
+          <p className="mt-4 max-w-2xl text-[12.5px] leading-relaxed text-muted/70">
+            {copy.tutorNote}
+          </p>
         </Reveal>
 
         {/* Said out loud rather than left for the reader to work out. The

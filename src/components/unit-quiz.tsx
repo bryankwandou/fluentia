@@ -30,11 +30,15 @@ export function UnitQuiz({
   track,
   level,
   exercises,
+  /** Wording for the closed state. A module-wide sitting and a single unit's
+      set are the same panel, and only the invitation differs. */
+  label,
 }: {
   locale?: Locale;
   track: string;
   level: string;
   exercises: Exercise[];
+  label?: string;
 }) {
   const copy = QUIZ[locale];
   const { record } = useReviews();
@@ -205,7 +209,7 @@ export function UnitQuiz({
         }}
         className="btn btn-primary mt-5 px-4 py-2.5 text-[13px]"
       >
-        {copy.open} · {exercises.length}
+        {label ?? copy.open} · {exercises.length}
       </button>
     );
   }
