@@ -12,6 +12,7 @@
 
 import {
   buildExercises,
+  buildModuleSession,
   countExercises,
   assemble,
   mark,
@@ -155,6 +156,40 @@ const first = JSON.stringify(buildExercises(sample.units[0], sample));
 const second = JSON.stringify(buildExercises(sample.units[0], sample));
 check("the generator is deterministic", first === second);
 if (first === second) report("the generator is deterministic", "same unit, same paper");
+
+console.log("\n--- one sitting per module ---");
+
+for (const module of ALL_MODULES) {
+  const sitting = buildModuleSession(module);
+  const all = new Set(
+    module.units.flatMap((unit) => buildExercises(unit, module).map((item) => item.id))
+  );
+
+  check(`${module.code} sitting is capped`, sitting.length === 20, `got ${sitting.length}`);
+  check(
+    `${module.code} sitting asks nothing twice`,
+    new Set(sitting.map((item) => item.id)).size === sitting.length
+  );
+  check(
+    `${module.code} sitting only asks questions the module has`,
+    sitting.every((item) => all.has(item.id))
+  );
+  // A sitting drawn from one unit would be a chapter test wearing the name of
+  // a module.
+  const units = new Set(sitting.map((item) => item.id.split(":")[0]));
+  check(
+    `${module.code} sitting spans the module`,
+    units.size === module.units.length,
+    `covered ${units.size} of ${module.units.length} units`
+  );
+}
+report("every module has a mixed sitting", "20 questions, drawn across all its units");
+
+check(
+  "the sitting is deterministic too",
+  JSON.stringify(buildModuleSession(ALL_MODULES[0])) ===
+    JSON.stringify(buildModuleSession(ALL_MODULES[0]))
+);
 
 console.log("\n--- marking is not lenient about the wrong things ---");
 

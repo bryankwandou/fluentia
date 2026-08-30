@@ -346,6 +346,32 @@ export function mark(exercise: Exercise, given: string) {
   return given === exercise.answer ? FULL_MARK : 0;
 }
 
+/**
+ * One sitting that covers the whole module.
+ *
+ * A module's full set runs past a hundred questions, which is a syllabus
+ * rather than a session. This takes them a unit at a time in rotation, so a
+ * learner who opens it gets early units and late ones in the same pass instead
+ * of fourteen questions about greetings and nothing else. Deterministic, like
+ * everything else here: the same module always yields the same sitting.
+ */
+export function buildModuleSession(module: Module, limit = 20): Exercise[] {
+  const perUnit = module.units.map((unit) => buildExercises(unit, module));
+  const out: Exercise[] = [];
+
+  for (let round = 0; out.length < limit; round += 1) {
+    // Every unit is exhausted before the loop can end, so a module with fewer
+    // questions than the limit returns what it has rather than spinning.
+    if (perUnit.every((items) => round >= items.length)) break;
+    for (const items of perUnit) {
+      if (out.length >= limit) break;
+      if (round < items.length) out.push(items[round]);
+    }
+  }
+
+  return out;
+}
+
 /** Totals the module page shows before a quiz is opened. */
 export function countExercises(module: Module) {
   return module.units.reduce(

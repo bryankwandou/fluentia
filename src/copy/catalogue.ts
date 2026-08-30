@@ -69,6 +69,8 @@ type ModuleDetail = {
   drills: string;
   feeds: string;
   practice: string;
+  tutor: string;
+  tutorNote: string;
   notFound: string;
   syllabusNote: string;
 };
@@ -187,7 +189,7 @@ export const MODULES: Record<Locale, Modules> = {
 export const MODULE_DETAIL: Record<Locale, ModuleDetail> = {
   en: {
     back: "Modules",
-    drill: "Drill this module",
+    drill: "Practise this module",
     hours: "study hours",
     words: "words carried",
     units: "units",
@@ -196,6 +198,9 @@ export const MODULE_DETAIL: Record<Locale, ModuleDetail> = {
     vocabulary: "Vocabulary",
     drills: "Drill lines",
     feeds: "Feeds",
+    tutor: "Talk to the tutor instead →",
+    tutorNote:
+      "That is the other half of the site and it works differently: a conversation with a model, metered, with three free rounds before it asks for a wallet. The practice sets on this page are not metered and no model marks them.",
     practice:
       "Each unit below ends with a set of questions built from its own drill lines: multiple choice both ways round, a gap to fill, the line to reassemble, and lines to say out loud. Answers are marked against the syllabus, not by a model, and every line you answer joins your review deck.",
     notFound: "Module not found",
@@ -212,6 +217,9 @@ export const MODULE_DETAIL: Record<Locale, ModuleDetail> = {
     vocabulary: "Kosakata",
     drills: "Baris latihan",
     feeds: "Menyiapkan",
+    tutor: "Atau bicara dengan tutornya →",
+    tutorNote:
+      "Itu bagian lain dari situs ini dan cara kerjanya berbeda: percakapan dengan model, dibatasi kuota, dengan tiga putaran gratis sebelum diminta menghubungkan dompet. Set latihan di halaman ini tidak dibatasi kuota dan tidak ada model yang menilainya.",
     practice:
       "Tiap unit di bawah ditutup dengan satu set soal yang disusun dari baris latihannya sendiri: pilihan ganda dua arah, satu bagian yang harus diisi, kalimat yang harus disusun ulang, dan kalimat yang harus diucapkan. Jawabannya dicocokkan dengan silabus, bukan dinilai model, dan setiap kalimat yang Anda jawab masuk ke deck pengulangan Anda.",
     notFound: "Modul tidak ditemukan",

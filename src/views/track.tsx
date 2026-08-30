@@ -30,6 +30,15 @@ export function Track({ locale, track }: { locale: Locale; track: TrackData }) {
     { rungs: 0, lines: 0 }
   );
 
+  // The same rule the rung cards use, applied to the opening button.
+  const firstCode = track.levels[0].code;
+  const firstSlug = slugifyModule(firstCode);
+  const firstModule = getModule(firstSlug);
+  const firstRung =
+    firstModule?.track === track.slug
+      ? `/modules/${firstSlug}`
+      : `/tutor?language=${encodeURIComponent(track.language)}&level=${encodeURIComponent(firstCode)}`;
+
   return (
     <div className="relative overflow-hidden">
       <div className="aurora opacity-60" />
@@ -56,11 +65,12 @@ export function Track({ locale, track }: { locale: Locale; track: TrackData }) {
               </p>
             </div>
 
+            {/* Starting a track sent the reader to the tutor even where the
+                first rung had a written module sitting behind it. The rung
+                cards below already choose between the two; the button now
+                makes the same choice rather than a different one. */}
             <Link
-              href={path(
-                locale,
-                `/tutor?language=${encodeURIComponent(track.language)}&level=${encodeURIComponent(track.levels[0].code)}`
-              )}
+              href={path(locale, firstRung)}
               className="btn btn-primary px-5 py-3 text-sm"
             >
               {copy.start}
