@@ -9,6 +9,7 @@ const OFFLINE = [
   ["tone detection, Cantonese", "cantonese-proof.mjs"],
   ["tone detection, Vietnamese", "vietnamese-proof.mjs"],
   ["written syllabus is gradeable", "content-proof.mjs"],
+  ["every question in the catalogue", "exercises-proof.mjs"],
   ["settlement arithmetic", "settle-proof.mjs"],
   ["review scheduling", "srs-proof.mjs"],
   ["thirty days of a learner's deck", "deck-proof.mjs"],

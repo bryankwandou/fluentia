@@ -54,6 +54,7 @@ type Modules = {
   englishBlurb: string;
   units: string;
   words: string;
+  questions: string;
 };
 
 type ModuleDetail = {
@@ -67,6 +68,7 @@ type ModuleDetail = {
   vocabulary: string;
   drills: string;
   feeds: string;
+  practice: string;
   notFound: string;
   syllabusNote: string;
 };
@@ -161,6 +163,7 @@ export const MODULES: Record<Locale, Modules> = {
       "Built for candidates who plateau in the 600s and cannot see why. The last two hundred points come from precision and stamina, not new vocabulary.",
     units: "units",
     words: "words",
+    questions: "questions",
   },
   id: {
     metaTitle: "Modul",
@@ -177,6 +180,7 @@ export const MODULES: Record<Locale, Modules> = {
       "Disusun untuk peserta yang mentok di kisaran 600 dan tidak tahu sebabnya. Dua ratus poin terakhir datang dari ketelitian dan daya tahan, bukan dari kosakata baru.",
     units: "unit",
     words: "kata",
+    questions: "soal",
   },
 };
 
@@ -192,6 +196,8 @@ export const MODULE_DETAIL: Record<Locale, ModuleDetail> = {
     vocabulary: "Vocabulary",
     drills: "Drill lines",
     feeds: "Feeds",
+    practice:
+      "Each unit below ends with a set of questions built from its own drill lines: multiple choice both ways round, a gap to fill, the line to reassemble, and lines to say out loud. Answers are marked against the syllabus, not by a model, and every line you answer joins your review deck.",
     notFound: "Module not found",
     syllabusNote: "",
   },
@@ -206,6 +212,8 @@ export const MODULE_DETAIL: Record<Locale, ModuleDetail> = {
     vocabulary: "Kosakata",
     drills: "Baris latihan",
     feeds: "Menyiapkan",
+    practice:
+      "Tiap unit di bawah ditutup dengan satu set soal yang disusun dari baris latihannya sendiri: pilihan ganda dua arah, satu bagian yang harus diisi, kalimat yang harus disusun ulang, dan kalimat yang harus diucapkan. Jawabannya dicocokkan dengan silabus, bukan dinilai model, dan setiap kalimat yang Anda jawab masuk ke deck pengulangan Anda.",
     notFound: "Modul tidak ditemukan",
     // Said on the page rather than left for the reader to notice on their own.
     syllabusNote:

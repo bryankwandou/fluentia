@@ -335,6 +335,7 @@ export const COVERAGE: Record<Locale, Coverage> = {
     thin: (modules, longTail) => [
       `Written units exist for ${modules} modules across two tracks: HSK 1 through 6 in Mandarin, and Foundation through TOEFL 100 in English. Every other rung on this page runs on the tutor, which is grounded on the level descriptor and the track rather than on authored lines. That is a real difference for the two Chinese ladders: the tone grader reads its target out of numbered pinyin or jyutping, so on a tutor-led rung it is working from whatever romanisation the model supplied for the line it just set rather than from a line that was checked in advance.`,
       `Vietnamese does not have that problem, because Vietnamese writes its tones into the line itself and the grader reads them straight off the text. Two of its six are still marked as shared rather than separated: huyền against nặng, and sắc against ngã. Each of those pairs is told apart by a catch in the throat, not by a change in pitch, and pitch is the whole of what gets measured here. Both members are held to one target and the result says which distinction went unjudged, which is a smaller claim than the one a confident-looking number would have made.`,
+      `The practice sets carry the same boundary. Questions are built from authored drill lines, so they exist for those ${modules} modules and nowhere else: a tutor-led rung has a conversation and a speaking grade, but no multiple choice, no gap fills and no sentence building, because there are no written lines to make them out of.`,
       `A further ${longTail} languages are reachable in the tutor without a ladder of their own. They are listed on the catalogue as what they are, conversation practice, and are deliberately absent from the table above, which counts rungs, not languages.`,
     ],
   },
@@ -353,6 +354,7 @@ export const COVERAGE: Record<Locale, Coverage> = {
     thin: (modules, longTail) => [
       `Unit tertulis baru ada untuk ${modules} modul di dua jalur: HSK 1 sampai 6 untuk Mandarin, dan Foundation sampai TOEFL 100 untuk Inggris. Semua jenjang lain di halaman ini berjalan dengan tutor, yang berpijak pada deskripsi jenjang dan jalurnya, bukan pada baris yang sudah ditulis. Untuk dua tangga bahasa Tionghoa, ini perbedaan yang nyata: penilai nada membaca targetnya dari pinyin atau jyutping bernomor, jadi pada jenjang yang dipandu tutor ia bekerja dari romanisasi apa pun yang baru saja disediakan model untuk kalimat itu, bukan dari baris yang sudah diperiksa lebih dulu.`,
       `Bahasa Vietnam tidak punya masalah itu, karena nadanya ditulis langsung di dalam kalimatnya dan penilai membacanya lurus dari teks. Dua dari enam nadanya masih ditandai digabung, bukan dipisah: huyền dengan nặng, dan sắc dengan ngã. Tiap pasangan itu dibedakan oleh hentakan di tenggorokan, bukan oleh perubahan tinggi nada, padahal tinggi nada itulah keseluruhan yang diukur di sini. Kedua anggotanya dipegang pada satu target, dan hasilnya menyebutkan pembedaan mana yang tidak dinilai. Itu klaim yang lebih kecil daripada yang akan disampaikan sebuah angka yang terlihat meyakinkan.`,
+      `Set latihannya punya batas yang sama. Soalnya disusun dari baris latihan yang ditulis, jadi soal hanya ada untuk ${modules} modul itu dan tidak di tempat lain: jenjang yang dipandu tutor tetap punya percakapan dan penilaian bicara, tetapi tanpa pilihan ganda, tanpa isian, dan tanpa susun kalimat, karena tidak ada baris tertulis untuk membuatnya.`,
       `Ada ${longTail} bahasa lagi yang bisa dijangkau lewat tutor tanpa tangga sendiri. Di katalog semuanya dicantumkan apa adanya, yaitu latihan percakapan, dan sengaja tidak dimasukkan ke tabel di atas, karena tabel itu menghitung jenjang, bukan bahasa.`,
     ],
   },
@@ -420,6 +422,11 @@ export const AUDIT: Record<Locale, Audit> = {
         fails: "A unit that reads well on the page but cannot be scored, which is the failure mode worth catching.",
       },
       {
+        claim: "No question in the practice sets was written by a model.",
+        check: "exercises-proof builds every question in all ten modules and requires each one to cite a drill line that exists, to carry exactly one correct answer, and to reject each of its own distractors. It walks the whole set rather than sampling it.",
+        fails: "A question with two right answers, none, or an answer that appears nowhere in the syllabus. Any of those would mean the question came from somewhere other than the authored units.",
+      },
+      {
         claim: "Payment arithmetic is correct and a transaction cannot be replayed.",
         check: "settle-proof offline, replay-proof against Solana devnet with a real signature submitted twice.",
         fails: "A second submission of the same signature is accepted, or a balance that does not reconcile.",
@@ -437,7 +444,7 @@ export const AUDIT: Record<Locale, Audit> = {
     ],
     runHeading: "Running all of it yourself",
     runLead:
-      "The first command needs nothing but Node. It runs the seven suites that do not touch the network and finishes in a few seconds.",
+      "The first command needs nothing but Node. It runs the eight suites that do not touch the network and finishes in a few seconds.",
     runNote:
       "The last command needs API credentials in .env.local and a devnet connection, because those suites are about a live system rather than about the source. It prints one line per suite and a count at the end. Anything red is a real failure and is meant to be read as one.",
     limitsHeading: "What this does not do",
@@ -515,6 +522,11 @@ export const AUDIT: Record<Locale, Audit> = {
         fails: "Unit yang enak dibaca di halaman tetapi tidak bisa dinilai, dan justru itulah bentuk kegagalan yang layak ditangkap.",
       },
       {
+        claim: "Tidak ada satu pun soal latihan yang ditulis oleh model.",
+        check: "exercises-proof menyusun setiap soal di kesepuluh modul lalu menuntut tiap soal merujuk baris latihan yang benar benar ada, memuat tepat satu jawaban benar, dan menolak semua pengecohnya sendiri. Seluruh himpunannya ditelusuri, bukan disampel.",
+        fails: "Soal dengan dua jawaban benar, tanpa jawaban benar, atau jawaban yang tidak ada di silabus mana pun. Ketiganya berarti soal itu datang dari luar unit yang ditulis.",
+      },
+      {
         claim: "Hitungan pembayaran benar dan transaksinya tidak bisa diulang.",
         check: "settle-proof secara luring, replay-proof langsung di Solana devnet dengan satu tanda tangan asli yang dikirim dua kali.",
         fails: "Pengiriman kedua dengan tanda tangan yang sama diterima, atau saldo yang tidak cocok.",
@@ -532,7 +544,7 @@ export const AUDIT: Record<Locale, Audit> = {
     ],
     runHeading: "Menjalankan semuanya sendiri",
     runLead:
-      "Perintah pertama tidak butuh apa apa selain Node. Ia menjalankan tujuh kumpulan uji yang tidak menyentuh jaringan dan selesai dalam hitungan detik.",
+      "Perintah pertama tidak butuh apa apa selain Node. Ia menjalankan delapan kumpulan uji yang tidak menyentuh jaringan dan selesai dalam hitungan detik.",
     runNote:
       "Perintah terakhir butuh kredensial API di .env.local dan sambungan devnet, karena kumpulan uji itu berbicara tentang sistem yang hidup, bukan tentang kode sumbernya. Hasilnya satu baris per kumpulan uji dan satu hitungan di akhir. Baris merah berarti kegagalan sungguhan dan memang dimaksudkan untuk dibaca begitu.",
     limitsHeading: "Yang belum dilakukan di sini",
