@@ -5,7 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ScoreBar, ScoreDial } from "./score-dial";
 import { WalletPanel } from "./wallet-panel";
+import { CONSOLE } from "@/copy/console";
 import { LONG_TAIL, TRACKS } from "@/lib/curriculum";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 import { ALL_MODULES, type Drill } from "@/lib/modules";
 import { analyseBlob } from "@/lib/pitch";
 import { PASS_MARK, buildQueue, cardId } from "@/lib/srs";
@@ -46,11 +48,15 @@ type ToneReport = {
 };
 
 const LANGUAGES = [...TRACKS.map((track) => track.language), ...LONG_TAIL];
-const AGES = ["a 4 year old", "a 9 year old", "a teenager", "an adult"];
 const FREE_ROUNDS = 3;
 
-export function TutorConsole() {
+/** What the model is told to write its explanations in, per locale. */
+const EXPLAIN: Record<Locale, string> = { en: "English", id: "Indonesian" };
+
+export function TutorConsole({ locale = DEFAULT_LOCALE }: { locale?: Locale }) {
   const params = useSearchParams();
+  const copy = CONSOLE[locale];
+  const explain = EXPLAIN[locale];
 
   const [language, setLanguage] = useState(params.get("language") ?? "Mandarin Chinese");
   const [level, setLevel] = useState(params.get("level") ?? "HSK 1");
@@ -118,10 +124,10 @@ export function TutorConsole() {
       const response = await fetch("/api/tutor", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ track: language, level, age, messages: next }),
+        body: JSON.stringify({ track: language, level, age, explain, messages: next }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "The tutor did not reply.");
+      if (!response.ok) throw new Error(data.error ?? copy.errTutorSilent);
 
       setMessages([...next, { role: "assistant", content: data.reply }]);
       const line = firstTargetLine(data.reply);
@@ -130,7 +136,7 @@ export function TutorConsole() {
         setExpectedPinyin("");
       }
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Something broke.");
+      setError(cause instanceof Error ? cause.message : copy.errGeneric);
       setMessages(next);
     } finally {
       setThinking(false);
@@ -144,9 +150,7 @@ export function TutorConsole() {
     }
 
     if (rounds >= FREE_ROUNDS && credits <= 0) {
-      setError(
-        `Your ${FREE_ROUNDS} free rounds are spent. Fund a USDC balance below to carry on.`
-      );
+      setError(copy.errRoundsSpent(FREE_ROUNDS));
       return;
     }
 
@@ -173,13 +177,13 @@ export function TutorConsole() {
       instance.start();
       setRecording(true);
     } catch {
-      setError("Microphone access was refused, so nothing could be recorded.");
+      setError(copy.errMicRefused);
     }
   }
 
   async function grade_(blob: Blob, mime: string) {
     if (blob.size < 1200) {
-      setError("That clip was too short to score. Hold the button a little longer.");
+      setError(copy.errTooShort);
       return;
     }
 
@@ -197,6 +201,7 @@ export function TutorConsole() {
       form.append("level", level);
       form.append("prompt", targetLine);
       form.append("expectedPinyin", expectedPinyin);
+      form.append("explain", explain);
 
       // Pitch is measured here, from the raw samples, because the transcript
       // the grader sees has already thrown it away.
@@ -210,7 +215,7 @@ export function TutorConsole() {
 
       const response = await fetch("/api/speech", { method: "POST", body: form });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Grading failed.");
+      if (!response.ok) throw new Error(data.error ?? copy.errGrading);
 
       setTranscript(data.transcript ?? "");
       setGrade(data.grade as Grade);
@@ -232,7 +237,7 @@ export function TutorConsole() {
         setExpectedPinyin(data.grade.nextPromptRoman ?? "");
       }
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Grading failed.");
+      setError(cause instanceof Error ? cause.message : copy.errGrading);
     } finally {
       setGrading(false);
     }
@@ -256,10 +261,10 @@ export function TutorConsole() {
         }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "The write was rejected.");
+      if (!response.ok) throw new Error(data.error ?? copy.errWriteRejected);
       setAnchor({ signature: data.signature, digest: data.digest, explorer: data.explorer });
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Devnet write failed.");
+      setError(cause instanceof Error ? cause.message : copy.errDevnet);
     } finally {
       setAnchoring(false);
     }
@@ -301,15 +306,28 @@ export function TutorConsole() {
       {/* ------------------------------------------------ conversation */}
       <div className="card flex min-h-[560px] flex-col overflow-hidden">
         <div className="flex flex-wrap items-center gap-2 border-b border-line p-4">
-          <Select value={language} onChange={setLanguage} options={LANGUAGES} label="Language" />
-          <Select value={level} onChange={setLevel} options={levels} label="Level" />
-          <Select value={age} onChange={setAge} options={AGES} label="Learner" />
+          <Select
+            value={language}
+            onChange={setLanguage}
+            options={LANGUAGES.map((entry) => ({ value: entry, label: entry }))}
+            label={copy.languageLabel}
+          />
+          <Select
+            value={level}
+            onChange={setLevel}
+            options={levels.map((entry) => ({ value: entry, label: entry }))}
+            label={copy.levelLabel}
+          />
+          {/* The value is what the model is told; only the label follows the
+              locale, so switching language cannot quietly change who it
+              thinks it is teaching. */}
+          <Select value={age} onChange={setAge} options={copy.ages} label={copy.learnerLabel} />
           <span className="ml-auto text-xs text-muted">
             {roundsLeft > 0
-              ? `${roundsLeft} free rounds left`
+              ? copy.freeLeft(roundsLeft)
               : credits > 0
-                ? `${credits} paid lessons left`
-                : "Free rounds used"}
+                ? copy.paidLeft(credits)
+                : copy.roundsSpent}
           </span>
         </div>
 
@@ -317,15 +335,12 @@ export function TutorConsole() {
           {messages.length === 0 && (
             <div className="grid h-full place-items-center px-6 text-center">
               <div>
-                <p className="text-sm text-muted">
-                  Ask for a first line, or say something in {language} and let the
-                  examiner take it apart.
-                </p>
+                <p className="text-sm text-muted">{copy.openingPrompt(language)}</p>
                 <div className="mt-5 flex flex-wrap justify-center gap-2">
                   {[
-                    `Give me my first line in ${language}`,
-                    "Place me — ask three questions",
-                    "Drill me on tones",
+                    copy.seedFirstLine(language),
+                    copy.seedPlaceMe,
+                    copy.seedTones,
                   ].map((seed) => (
                     <button
                       key={seed}
@@ -388,7 +403,7 @@ export function TutorConsole() {
           <input
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
-            placeholder={`Write in ${language} or in English`}
+            placeholder={copy.inputPlaceholder(language)}
             className="flex-1 rounded-xl border border-line bg-white/[0.03] px-4 py-2.5 text-sm outline-none transition-colors placeholder:text-muted/60 focus:border-jade-400/50"
           />
           <button
@@ -396,7 +411,7 @@ export function TutorConsole() {
             disabled={thinking || !draft.trim()}
             className="btn btn-primary px-4 py-2.5 text-sm"
           >
-            Send
+            {copy.send}
           </button>
         </form>
       </div>
@@ -405,7 +420,7 @@ export function TutorConsole() {
       <div className="space-y-5">
         <div className="card p-5">
           <p className="text-xs uppercase tracking-[0.16em] text-muted/70">
-            Speaking round
+            {copy.speakingRound}
           </p>
 
           {session.length > 0 && (
@@ -439,10 +454,10 @@ export function TutorConsole() {
                     )}
                   >
                     {card.attempts === 0
-                      ? "new"
+                      ? copy.cardNew
                       : card.lastScore >= PASS_MARK
                         ? `${card.lastScore}`
-                        : "relearn"}
+                        : copy.cardRelearn}
                   </span>
                 </button>
               ))}
@@ -454,15 +469,12 @@ export function TutorConsole() {
               <p className="text-[15px] leading-relaxed">{targetLine}</p>
               {expectedPinyin && (
                 <p className="mt-1 text-[12.5px] text-jade-300/80">
-                  {expectedPinyin} · tones will be measured, not guessed
+                  {expectedPinyin} · {copy.measuredNotGuessed}
                 </p>
               )}
             </div>
           ) : (
-            <p className="mt-3 text-sm text-muted">
-              Ask the tutor for a line first, or just record yourself speaking
-              freely and it will be graded as open practice.
-            </p>
+            <p className="mt-3 text-sm text-muted">{copy.noTargetYet}</p>
           )}
 
           <button
@@ -477,10 +489,10 @@ export function TutorConsole() {
             )}
           >
             {grading
-              ? "Marking your attempt…"
+              ? copy.marking
               : recording
-                ? "Stop and submit"
-                : "Record an attempt"}
+                ? copy.stopAndSubmit
+                : copy.recordAttempt}
           </button>
 
           {recording && (
@@ -512,17 +524,17 @@ export function TutorConsole() {
               <div className="flex items-center gap-5">
                 <ScoreDial value={grade.score} />
                 <div className="min-w-0 flex-1 space-y-2.5">
-                  <ScoreBar label="Accuracy" value={grade.accuracy} />
-                  <ScoreBar label="Pronunciation" value={grade.pronunciation} />
-                  <ScoreBar label="Tone" value={grade.tone} />
-                  <ScoreBar label="Fluency" value={grade.fluency} />
+                  <ScoreBar label={copy.accuracy} value={grade.accuracy} />
+                  <ScoreBar label={copy.pronunciation} value={grade.pronunciation} />
+                  <ScoreBar label={copy.tone} value={grade.tone} />
+                  <ScoreBar label={copy.fluency} value={grade.fluency} />
                 </div>
               </div>
 
               {tones && (
                 <div className="mt-4 rounded-xl border border-jade-400/25 bg-jade-500/[0.06] p-3">
                   <p className="text-[11px] uppercase tracking-[0.14em] text-jade-300/80">
-                    Pitch measured from the recording
+                    {copy.pitchHeading}
                   </p>
                   <div className="mt-2.5 space-y-1.5">
                     {tones.perSyllable.map((entry, index) => (
@@ -539,9 +551,7 @@ export function TutorConsole() {
                           {entry.sharedWith?.length ? (
                             <span
                               className="ml-1 cursor-help text-amber-300/70"
-                              title={`Scored the same as ${entry.sharedWith.join(
-                                " and "
-                              )}. The difference between them is a glottal one, and pitch cannot show it.`}
+                              title={copy.sharedTitle(entry.sharedWith.join(" / "))}
                             >
                               ~
                             </span>
@@ -567,10 +577,7 @@ export function TutorConsole() {
                       hover the phone half of the traffic cannot reach. */}
                   {tones.perSyllable.some((entry) => entry.sharedWith?.length) && (
                     <p className="mt-2.5 border-t border-jade-400/15 pt-2 text-[11px] leading-relaxed text-muted">
-                      Rows marked <span className="text-amber-300/70">~</span> share a
-                      score with a neighbouring tone. What separates those is a catch in
-                      the throat rather than a change in pitch, and pitch is all this
-                      reads — so the mark covers the melody and stops there.
+                      {copy.sharedNote}
                     </p>
                   )}
                 </div>
@@ -578,7 +585,7 @@ export function TutorConsole() {
 
               {transcript && (
                 <p className="mt-4 rounded-lg border border-line bg-white/[0.02] px-3 py-2 text-[13px] text-muted">
-                  Heard: <span className="text-paper/85">{transcript}</span>
+                  {copy.heard} <span className="text-paper/85">{transcript}</span>
                 </p>
               )}
 
@@ -594,7 +601,7 @@ export function TutorConsole() {
               {grade.nextPrompt && (
                 <div className="mt-4 rounded-xl border border-line bg-white/[0.02] p-3">
                   <p className="text-xs uppercase tracking-[0.14em] text-muted/70">
-                    Next line
+                    {copy.nextLine}
                   </p>
                   <p className="mt-1.5 text-[15px]">{grade.nextPrompt}</p>
                   {grade.nextPromptRoman && (
@@ -614,22 +621,22 @@ export function TutorConsole() {
           <div className="card p-5">
             <div className="flex items-baseline justify-between">
               <p className="text-xs uppercase tracking-[0.16em] text-muted/70">
-                Review deck
+                {copy.deckHeading}
               </p>
               <button
                 type="button"
                 onClick={resetDeck}
                 className="text-[11px] text-muted/60 underline underline-offset-4 transition-colors hover:text-muted"
               >
-                Clear
+                {copy.clear}
               </button>
             </div>
 
             <div className="mt-3 grid grid-cols-3 gap-2">
               {[
-                ["Learning", progress.learning],
-                ["Retained", progress.mature],
-                ["Due now", progress.dueNow],
+                [copy.learning, progress.learning],
+                [copy.retained, progress.mature],
+                [copy.dueNow, progress.dueNow],
               ].map(([label, value]) => (
                 <div
                   key={label as string}
@@ -643,11 +650,9 @@ export function TutorConsole() {
 
             <p className="mt-3 text-[12.5px] leading-relaxed text-muted">
               {progress.meanScore
-                ? `Averaging ${progress.meanScore} across ${progress.total} lines. `
+                ? copy.averaging(progress.meanScore, progress.total)
                 : ""}
-              A line returns the day after it is passed, then after six days, and
-              from there the gap widens with every clean attempt. Anything scored
-              under {PASS_MARK} comes straight back.
+              {copy.schedule(PASS_MARK)}
             </p>
           </div>
         )}
@@ -655,21 +660,16 @@ export function TutorConsole() {
         {/* ------------------------------------------------ credential */}
         <div className="card p-5">
           <p className="text-xs uppercase tracking-[0.16em] text-muted/70">
-            Anchor the result
+            {copy.anchorHeading}
           </p>
-          <p className="mt-2 text-[13px] leading-relaxed text-muted">
-            Scores of 60 and above can be written to Solana devnet under your
-            wallet. Only the level, the score and a hash travel on chain.
-          </p>
+          <p className="mt-2 text-[13px] leading-relaxed text-muted">{copy.anchorBlurb}</p>
 
           {wallet ? (
             <p className="mt-3 rounded-xl border border-line bg-white/[0.02] px-3 py-2 font-mono text-[12px] text-muted">
               {shortAddress(wallet, 8)}
             </p>
           ) : (
-            <p className="mt-3 text-[12.5px] text-muted/70">
-              Connect a wallet below to receive it.
-            </p>
+            <p className="mt-3 text-[12.5px] text-muted/70">{copy.connectWallet}</p>
           )}
 
           <button
@@ -678,7 +678,7 @@ export function TutorConsole() {
             disabled={!grade || grade.score < 60 || !wallet.trim() || anchoring}
             className="mt-3 w-full rounded-xl border border-jade-400/40 bg-jade-500/12 px-4 py-2.5 text-sm font-medium text-jade-300 transition-colors hover:bg-jade-500/20 disabled:opacity-35"
           >
-            {anchoring ? "Writing to devnet…" : "Write credential on chain"}
+            {anchoring ? copy.writing : copy.writeCredential}
           </button>
 
           {anchor && (
@@ -687,7 +687,7 @@ export function TutorConsole() {
               animate={{ opacity: 1, y: 0 }}
               className="mt-4 rounded-xl border border-jade-400/30 bg-jade-500/8 p-3 text-[12.5px]"
             >
-              <p className="text-muted">Confirmed on devnet.</p>
+              <p className="text-muted">{copy.confirmed}</p>
               <p className="mt-1.5 break-all font-mono text-jade-300">
                 {shortAddress(anchor.signature, 10)}
               </p>
@@ -697,7 +697,7 @@ export function TutorConsole() {
                 rel="noreferrer"
                 className="mt-2 inline-block text-jade-300 underline underline-offset-4"
               >
-                Open in Solana Explorer
+                {copy.openExplorer}
               </a>
             </motion.div>
           )}
@@ -749,7 +749,9 @@ function Select({
 }: {
   value: string;
   onChange: (value: string) => void;
-  options: string[];
+  /** Value and label are separate so a translated label cannot change what
+      gets sent upstream. */
+  options: { value: string; label: string }[];
   label: string;
 }) {
   return (
@@ -761,8 +763,8 @@ function Select({
         className="rounded-lg border border-line bg-ink-900 px-2.5 py-1.5 text-[13px] outline-none transition-colors focus:border-jade-400/50"
       >
         {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
+          <option key={option.value} value={option.value}>
+            {option.label}
           </option>
         ))}
       </select>

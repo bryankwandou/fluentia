@@ -445,7 +445,7 @@ export const AUDIT: Record<Locale, Audit> = {
       "Settlement runs on Solana devnet. The balances are test funds and no money changes hands. The instruction flow is what a mainnet build would use, but calling it revenue would be false.",
       "Progress is kept in your browser, not on a server. Clearing site data clears it. There are no accounts.",
       "Recordings are graded and dropped. What survives an attempt is a hash of the transcript, which cannot be turned back into audio.",
-      "The interface and the writing exist in English and Indonesian. The syllabus content itself, meaning unit titles, grammar points and glosses, is written in English only, and the tutor console still speaks English while it works. Neither is translated yet and neither is claimed to be.",
+      "The interface exists in English and Indonesian, the tutor console included, and the tutor is told to explain in whichever of the two you are reading. What is not translated is the written syllabus: unit titles, grammar points and glosses were authored in English and are still only in English. That is a body of writing rather than a set of labels, and running it through a machine would leave a learner studying from prose nobody had checked, so it is left as it is and said so here.",
     ],
     rungLimit: (written, total, units) =>
       `${written} of ${total} rungs carry authored units, ${units} of them in total. The rest are taught by the tutor from the level descriptor. Both work; they are not the same thing.`,
@@ -540,7 +540,7 @@ export const AUDIT: Record<Locale, Audit> = {
       "Pembayaran berjalan di Solana devnet. Saldonya dana uji dan tidak ada uang yang berpindah. Alur instruksinya sama dengan yang akan dipakai versi mainnet, tetapi menyebutnya pendapatan jelas keliru.",
       "Kemajuan belajar disimpan di peramban Anda, bukan di server. Menghapus data situs akan menghapusnya. Tidak ada akun.",
       "Rekaman dinilai lalu dibuang. Yang tersisa dari sebuah percobaan adalah hash teksnya, dan itu tidak bisa dikembalikan menjadi suara.",
-      "Antarmuka dan tulisannya tersedia dalam bahasa Inggris dan Indonesia. Isi silabusnya sendiri, yaitu judul unit, butir tata bahasa dan penjelasan artinya, baru ditulis dalam bahasa Inggris, dan konsol tutor juga masih berbahasa Inggris ketika bekerja. Keduanya belum diterjemahkan dan tidak diklaim sudah.",
+      "Antarmukanya tersedia dalam bahasa Inggris dan Indonesia, termasuk konsol tutor, dan tutornya diminta menjelaskan dalam bahasa yang sedang Anda baca. Yang belum diterjemahkan adalah silabus tertulisnya: judul unit, butir tata bahasa, dan penjelasan artinya ditulis dalam bahasa Inggris dan masih hanya ada dalam bahasa itu. Itu satu badan tulisan, bukan sekumpulan label, dan menerjemahkannya dengan mesin akan membuat pelajar belajar dari kalimat yang belum diperiksa siapa pun, jadi dibiarkan apa adanya dan disebutkan di sini.",
     ],
     rungLimit: (written, total, units) =>
       `Dari ${total} jenjang, ${written} sudah membawa unit tertulis, seluruhnya ${units} unit. Sisanya diajar tutor berdasarkan deskripsi jenjangnya. Keduanya bisa dipakai, tetapi bukan hal yang sama.`,

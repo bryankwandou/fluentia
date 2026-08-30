@@ -113,6 +113,10 @@ export async function POST(request: Request) {
   const level = String(form.get("level") ?? "HSK 1");
   const prompt = String(form.get("prompt") ?? "");
   const expectedPinyin = String(form.get("expectedPinyin") ?? "");
+  // The verdict is written for the learner, so it follows the language the
+  // site is being read in. Anything other than the two known values falls
+  // back rather than reaching the prompt.
+  const explain = form.get("explain") === "Indonesian" ? "Indonesian" : "English";
 
   if (!(audio instanceof File) || audio.size === 0) {
     return NextResponse.json({ error: "No recording was attached." }, { status: 400 });
@@ -167,7 +171,7 @@ export async function POST(request: Request) {
       ...REASONING,
       response_format: { type: "json_object" },
       messages: [
-        { role: "system", content: gradingSystemPrompt(track, level) },
+        { role: "system", content: gradingSystemPrompt(track, level, explain) },
         {
           role: "user",
           content: [
