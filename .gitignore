@@ -53,3 +53,4 @@ proofs/groq.mjs
 
 # local agent tooling pointer, not part of the project
 CLAUDE.md
+proofs/exercises.mjs
