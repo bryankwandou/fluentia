@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Reveal, Stagger, StaggerItem } from "@/components/reveal";
 import { MODULES } from "@/copy/catalogue";
+import { countExercises } from "@/lib/exercises";
 import { ENGLISH_MODULES, HSK_MODULES, slugifyModule } from "@/lib/modules";
 import { path, type Locale } from "@/lib/i18n";
 
@@ -52,6 +53,9 @@ function Shelf({
                   </span>
                   <span>
                     {module.words.toLocaleString("en-US")} {copy.words}
+                  </span>
+                  <span className="text-jade-300/80">
+                    {countExercises(module)} {copy.questions}
                   </span>
                 </div>
               </article>

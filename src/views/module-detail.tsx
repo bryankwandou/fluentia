@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Reveal, Stagger, StaggerItem } from "@/components/reveal";
+import { UnitQuiz } from "@/components/unit-quiz";
 import { MODULE_DETAIL } from "@/copy/catalogue";
+import { buildExercises } from "@/lib/exercises";
 import type { Module } from "@/lib/modules";
 import { path, type Locale } from "@/lib/i18n";
 
@@ -61,6 +63,12 @@ export function ModuleDetail({
             </p>
           </Reveal>
         )}
+
+        <Reveal delay={0.07}>
+          <p className="mt-6 rounded-xl border border-jade-400/25 bg-jade-500/[0.04] px-4 py-3 text-[13px] leading-relaxed text-muted">
+            {copy.practice}
+          </p>
+        </Reveal>
 
         <Reveal delay={0.08}>
           <dl className="mt-10 grid grid-cols-3 gap-6 border-y border-line py-6">
@@ -157,6 +165,15 @@ export function ModuleDetail({
                     <p className="mt-5 border-t border-line pt-4 text-[12.5px] text-muted">
                       {copy.feeds}: {unit.examTask}
                     </p>
+
+                    {/* Built on the server from the drills printed above, so
+                        the questions and the syllabus cannot drift apart. */}
+                    <UnitQuiz
+                      locale={locale}
+                      track={module.track}
+                      level={module.code}
+                      exercises={buildExercises(unit, module)}
+                    />
                   </div>
                 </div>
               </article>
