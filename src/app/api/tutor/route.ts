@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     track?: string;
     level?: string;
     age?: string;
+    explain?: string;
     messages?: Turn[];
   };
 
@@ -32,6 +33,10 @@ export async function POST(request: Request) {
   const track = body.track ?? "Mandarin Chinese";
   const level = body.level ?? "HSK 1";
   const age = body.age ?? "adult";
+  // Only two values are ever sent, and anything else falls back rather than
+  // reaching the model, so a crafted body cannot rewrite the prompt through
+  // this field.
+  const explain = body.explain === "Indonesian" ? "Indonesian" : "English";
   const history = (body.messages ?? []).slice(-14);
 
   if (history.length === 0) {
@@ -45,7 +50,7 @@ export async function POST(request: Request) {
       max_tokens: 900,
       ...REASONING,
       messages: [
-        { role: "system", content: tutorSystemPrompt(track, level, age, syllabusFor(level)) },
+        { role: "system", content: tutorSystemPrompt(track, level, age, syllabusFor(level), explain) },
         ...history,
       ],
     });

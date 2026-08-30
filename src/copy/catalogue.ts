@@ -209,6 +209,6 @@ export const MODULE_DETAIL: Record<Locale, ModuleDetail> = {
     notFound: "Modul tidak ditemukan",
     // Said on the page rather than left for the reader to notice on their own.
     syllabusNote:
-      "Isi silabus di bawah ini masih dalam bahasa Inggris. Judul unit, butir tata bahasa dan penjelasan artinya belum diterjemahkan, sementara baris latihannya memang ditulis dalam bahasa yang sedang Anda pelajari dan tidak akan diterjemahkan.",
+      "Isi silabus di bawah ini masih dalam bahasa Inggris. Judul unit, butir tata bahasa dan penjelasan artinya belum diterjemahkan, sementara baris latihannya memang ditulis dalam bahasa yang sedang Anda pelajari dan tidak akan diterjemahkan. Di ruang tutor, penjelasannya sudah mengikuti bahasa Indonesia.",
   },
 };

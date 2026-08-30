@@ -18,10 +18,18 @@ type Chrome = {
   columns: { title: string; links: { to: string; label: string; external?: boolean }[] }[];
 };
 
-const NAV_PATHS = ["/catalogue", "/tutor", "/credentials", "/pricing", "/audit"];
+/**
+ * The unit-level syllabus sat at /modules for weeks with nothing linking to it.
+ * It was reachable from a track page, two clicks in, and from nowhere else — so
+ * a first-time reader saw the tutor, decided the site was a chat window, and
+ * left before finding the written course. It goes in the top bar for that
+ * reason: the coursework is the product, and it has to be one click from every
+ * page.
+ */
+const NAV_PATHS = ["/catalogue", "/modules", "/tutor", "/credentials", "/pricing", "/audit"];
 
-const EN_LABELS = ["Catalogue", "Tutor", "Credentials", "Pricing", "Audit"];
-const ID_LABELS = ["Katalog", "Tutor", "Sertifikat", "Harga", "Audit"];
+const EN_LABELS = ["Catalogue", "Modules", "Tutor", "Credentials", "Pricing", "Audit"];
+const ID_LABELS = ["Katalog", "Modul", "Tutor", "Sertifikat", "Harga", "Audit"];
 
 const SOURCE = "https://github.com/bryankwandou/fluentia";
 
@@ -40,6 +48,8 @@ export const CHROME: Record<Locale, Chrome> = {
         title: "Study",
         links: [
           { to: "/catalogue", label: "Language catalogue" },
+          { to: "/modules", label: "Syllabus, unit by unit" },
+          { to: "/modules/hsk-1", label: "HSK 1, first units" },
           { to: "/catalogue/mandarin", label: "Mandarin, HSK 1-6" },
           { to: "/tutor", label: "Live speaking tutor" },
           { to: "/kids", label: "Kids and early years" },
@@ -79,6 +89,8 @@ export const CHROME: Record<Locale, Chrome> = {
         title: "Belajar",
         links: [
           { to: "/catalogue", label: "Katalog bahasa" },
+          { to: "/modules", label: "Silabus, unit demi unit" },
+          { to: "/modules/hsk-1", label: "HSK 1, unit pertama" },
           { to: "/catalogue/mandarin", label: "Mandarin, HSK 1-6" },
           { to: "/tutor", label: "Tutor bicara langsung" },
           { to: "/kids", label: "Anak dan usia dini" },

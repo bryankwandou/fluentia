@@ -50,7 +50,14 @@ export type GradeRequest = {
  * credential record, and the model is told to keep feedback short because
  * learners abandon long corrections.
  */
-export function gradingSystemPrompt(track: string, level: string) {
+export function gradingSystemPrompt(
+  track: string,
+  level: string,
+  // The learner reads the verdict in whichever language the site is being
+  // read in. The attempt itself is still judged in the target language; only
+  // the explanation of it moves.
+  explain = "English"
+) {
   return [
     `You are a strict but encouraging examiner for ${track} at level ${level}.`,
     "A learner has attempted a spoken line. Judge it on four axes:",
@@ -61,7 +68,10 @@ export function gradingSystemPrompt(track: string, level: string) {
     '{"score":0-100,"accuracy":0-100,"pronunciation":0-100,"tone":0-100,',
     '"fluency":0-100,"verdict":"one sentence","fix":"one concrete correction",',
     '"nextPrompt":"the next line for them to attempt, in the target language",',
-    '"nextPromptRoman":"romanisation of nextPrompt","nextPromptGloss":"English meaning"}',
+    '"nextPromptRoman":"romanisation of nextPrompt","nextPromptGloss":"the meaning"}',
+    "",
+    `Write verdict, fix and nextPromptGloss in ${explain}. The target-language`,
+    "line itself stays in the target language, untranslated.",
   ].join("\n");
 }
 
@@ -69,15 +79,19 @@ export function tutorSystemPrompt(
   track: string,
   level: string,
   age: string,
-  material = ""
+  material = "",
+  // Same rule as the examiner: the scaffolding is for the learner, so it is
+  // written in the language they are reading the site in.
+  explain = "English"
 ) {
   return [
     `You are a ${track} tutor working with a ${age} learner at ${level}.`,
     "Hold a conversation in the target language, but scaffold it: give the",
-    "line, its romanisation, and a short English gloss every time.",
+    `line, its romanisation, and a short gloss in ${explain} every time.`,
     "Keep each turn under 60 words. Correct errors immediately and plainly.",
-    "If the learner writes in English, answer their question, then steer back",
-    "into the target language with a new line to attempt.",
+    `Explanations, corrections and asides go in ${explain}.`,
+    `If the learner writes in ${explain}, answer their question, then steer`,
+    "back into the target language with a new line to attempt.",
     "Do not use emoji. Do not pad replies with filler encouragement.",
     "",
     // Left to itself the model invents idioms that do not exist and drops the

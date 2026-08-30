@@ -38,6 +38,13 @@ type Tutor = {
   heading: string;
   lead: string;
   loading: string;
+  /**
+   * Said on the console itself. A reader who opens this page first sees a chat
+   * box and reasonably concludes that is the whole product, so the page has to
+   * name where the lines come from and link to it.
+   */
+  sourceNote: string;
+  sourceLink: string;
 };
 
 export const MANIFESTO: Record<Locale, Manifesto> = {
@@ -169,6 +176,9 @@ export const TUTOR: Record<Locale, Tutor> = {
     heading: "The examiner is listening",
     lead: "Pick a language and a rung, ask for a line, then record yourself saying it. Accuracy, pronunciation, tone and fluency come back separately so you know which one is holding you back.",
     loading: "Loading the console…",
+    sourceNote:
+      "The lines are not improvised. Every drill the tutor sets is copied from the written syllabus behind this site — ten modules, unit by unit, with the grammar, the vocabulary and the exam task each unit feeds.",
+    sourceLink: "Read the syllabus →",
   },
   id: {
     metaTitle: "Tutor",
@@ -178,5 +188,8 @@ export const TUTOR: Record<Locale, Tutor> = {
     heading: "Pengujinya sedang mendengarkan",
     lead: "Pilih bahasa dan jenjang, minta satu kalimat, lalu rekam suara Anda mengucapkannya. Ketepatan, pelafalan, nada dan kelancaran dikembalikan terpisah supaya Anda tahu bagian mana yang menahan Anda.",
     loading: "Memuat konsolnya…",
+    sourceNote:
+      "Kalimatnya tidak dikarang. Setiap latihan yang diberikan tutor disalin dari silabus tertulis di balik situs ini — sepuluh modul, unit demi unit, lengkap dengan tata bahasa, kosakata dan tugas ujian yang disiapkan tiap unit.",
+    sourceLink: "Baca silabusnya →",
   },
 };
