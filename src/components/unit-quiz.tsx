@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { QUIZ } from "@/copy/quiz";
+import { TraceBox } from "@/components/trace-box";
 import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 import { analyseBlob } from "@/lib/pitch";
 import { cardId } from "@/lib/srs";
@@ -53,6 +54,7 @@ export function UnitQuiz({
   const [recording, setRecording] = useState(false);
   const [grading, setGrading] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [detail, setDetail] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const recorder = useRef<MediaRecorder | null>(null);
@@ -62,12 +64,25 @@ export function UnitQuiz({
   const finished = index >= exercises.length;
   const voice = speechLangFor(track);
 
+  // A listening question that has to be started by hand is a reading question
+  // with an extra click, so the line plays as soon as it comes up.
+  useEffect(() => {
+    if (!item || item.kind !== "listen") return;
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    const utterance = new SpeechSynthesisUtterance(item.spoken);
+    utterance.lang = voice;
+    utterance.rate = 0.8;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  }, [item, voice]);
+
   function resetQuestion() {
     setPicked(null);
     setTyped("");
     setTiles([]);
     setMarked(null);
     setTranscript("");
+    setDetail(null);
     setError(null);
   }
 
@@ -263,22 +278,43 @@ export function UnitQuiz({
           <p className="text-[12.5px] text-muted">
             {item.kind === "speak"
               ? copy.askSpeak
-              : item.kind === "blank"
-                ? copy.askGap
-                : item.kind === "build"
-                  ? copy.askBuild
-                  : item.direction === "toGloss"
-                    ? copy.askMeaning
-                    : item.direction === "toTarget"
-                      ? copy.askLine
-                      : copy.askRoman}
+              : item.kind === "listen"
+                ? copy.askListen
+                : item.kind === "trace"
+                  ? copy.askTrace
+                  : item.kind === "blank"
+                    ? copy.askGap
+                    : item.kind === "build"
+                      ? copy.askBuild
+                      : item.direction === "toGloss"
+                        ? copy.askMeaning
+                        : item.direction === "toTarget"
+                          ? copy.askLine
+                          : copy.askRoman}
           </p>
 
           <div className="mt-2 flex flex-wrap items-baseline gap-3">
-            <p className="text-[19px] leading-snug">{item.prompt}</p>
+            {/* A listening question withholds the text: showing it would turn
+                the question into a reading one. It appears once the answer is
+                in, so the learner can see what they were listening to. */}
+            <p className="text-[19px] leading-snug">
+              {item.kind === "listen"
+                ? marked !== null
+                  ? item.spoken
+                  : "· · ·"
+                : item.prompt}
+            </p>
             {/* Only target-language text is worth hearing. Reading an English
                 gloss aloud in a Chinese voice would teach nothing. */}
-            {item.kind !== "choice" || item.direction !== "toTarget" ? (
+            {item.kind === "listen" ? (
+              <button
+                type="button"
+                onClick={() => speak(item.spoken)}
+                className="rounded-md border border-line px-2 py-1 text-[12px] text-muted hover:text-paper"
+              >
+                {copy.playAgain}
+              </button>
+            ) : item.kind !== "choice" || item.direction !== "toTarget" ? (
               <button
                 type="button"
                 onClick={() => speak(item.kind === "build" ? item.answer : item.prompt)}
@@ -293,7 +329,7 @@ export function UnitQuiz({
             <p className="mt-1 text-[12.5px] text-jade-300/80">{item.promptRoman}</p>
           )}
 
-          {item.kind === "choice" && (
+          {(item.kind === "choice" || item.kind === "listen") && (
             <div className="mt-4 grid gap-2">
               {item.options.map((option) => {
                 const chosen = picked === option;
@@ -373,6 +409,30 @@ export function UnitQuiz({
             </div>
           )}
 
+          {item.kind === "trace" && (
+            <div className="mt-4">
+              <p className="text-[13px] text-muted">{item.gloss}</p>
+              <TraceBox
+                key={item.id}
+                character={item.prompt}
+                hint={copy.traceHint}
+                clearLabel={copy.clear}
+                submitLabel={copy.submitTrace}
+                emptyLabel={copy.traceEmpty}
+                disabled={marked !== null}
+                onMark={(result) => {
+                  setDetail(
+                    copy.traceDetail(
+                      Math.round(result.accuracy * 100),
+                      Math.round(result.coverage * 100)
+                    )
+                  );
+                  commit(result.score);
+                }}
+              />
+            </div>
+          )}
+
           {item.kind === "speak" && (
             <div className="mt-4">
               <p className="text-[13px] text-muted">{item.gloss}</p>
@@ -405,11 +465,14 @@ export function UnitQuiz({
               <p className="text-[13px]">
                 {item.kind === "speak"
                   ? copy.spokenScore(marked)
-                  : marked >= 70
-                    ? copy.correct
-                    : copy.wrong}
+                  : item.kind === "trace"
+                    ? copy.traceScore(marked)
+                    : marked >= 70
+                      ? copy.correct
+                      : copy.wrong}
               </p>
-              {marked < 70 && item.kind !== "speak" && (
+              {detail && <p className="mt-1 text-[12.5px] text-muted">{detail}</p>}
+              {marked < 70 && item.kind !== "speak" && item.kind !== "trace" && (
                 <p className="mt-1 text-[13px] text-muted">
                   {copy.answerWas}{" "}
                   <span className="text-paper/85">{item.answer}</span>
@@ -422,12 +485,13 @@ export function UnitQuiz({
           <div className="mt-4 flex items-center gap-3">
             {marked === null ? (
               <>
-                {item.kind !== "speak" && (
+                {item.kind !== "speak" && item.kind !== "trace" && (
                   <button
                     type="button"
                     onClick={checkAnswer}
                     disabled={
-                      (item.kind === "choice" && !picked) ||
+                      ((item.kind === "choice" || item.kind === "listen") &&
+                        !picked) ||
                       (item.kind === "blank" && !typed.trim()) ||
                       (item.kind === "build" && tiles.length === 0)
                     }

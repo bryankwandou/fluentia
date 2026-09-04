@@ -14,6 +14,7 @@
  */
 
 import type { Drill, Module, Unit } from "./modules";
+import { tracedScript } from "./tracing";
 
 export type Exercise =
   | {
@@ -54,6 +55,25 @@ export type Exercise =
   | {
       kind: "speak";
       id: string;
+      prompt: string;
+      promptRoman: string;
+      gloss: string;
+      target: string;
+    }
+  | {
+      kind: "listen";
+      id: string;
+      /** Spoken, never shown, until the answer is in. */
+      spoken: string;
+      promptRoman: string;
+      options: string[];
+      answer: string;
+      target: string;
+    }
+  | {
+      kind: "trace";
+      id: string;
+      /** The single character to write. */
       prompt: string;
       promptRoman: string;
       gloss: string;
@@ -229,6 +249,34 @@ function gapWord(drill: Drill, unit: Unit, track: string) {
 }
 
 /**
+ * The character this line can be written by hand.
+ *
+ * Only single characters, and only ones the unit actually teaches: a learner
+ * asked to write a character that has not been introduced is being tested on
+ * something nobody showed them.
+ */
+function traceable(drill: Drill, unit: Unit, track: string) {
+  if (!tracedScript(track)) return null;
+
+  for (const word of unit.vocabulary) {
+    if (Array.from(word).length !== 1) continue;
+    if (drill.target.includes(word)) return word;
+  }
+
+  // Later units teach compounds rather than single characters, and a learner
+  // who has been given 老师 has been given 老 and 师. Taking one character out
+  // of a taught word is still only asking for something the unit put in front
+  // of them; without this the higher modules would set no writing at all.
+  for (const word of unit.vocabulary) {
+    for (const char of Array.from(word)) {
+      if (drill.target.includes(char)) return char;
+    }
+  }
+
+  return null;
+}
+
+/**
  * Build the exercise set for one unit.
  *
  * Every drill produces at least one question, and the shape rotates by
@@ -318,6 +366,40 @@ export function buildExercises(unit: Unit, module: Module): Exercise[] {
       });
     }
 
+    // Heard, not read. The line is spoken by the browser and the text stays
+    // hidden until the answer is in, so the question cannot be solved by
+    // recognising characters — which is the whole skill an exam listening
+    // paper tests and the one a reading drill never reaches.
+    if (index % 4 === 0 && pools.glosses.length >= 4) {
+      out.push({
+        kind: "listen",
+        id: `${seed}#listen`,
+        spoken: drill.target,
+        promptRoman: drill.roman,
+        options: shuffle(
+          [drill.gloss, ...distractors(drill.gloss, pools.glosses, `${seed}l`)],
+          `${seed}lo`
+        ),
+        answer: drill.gloss,
+        target: drill.target,
+      });
+    }
+
+    // Writing, where the script is one people write by hand. One character at
+    // a time: asking for a whole line in a box would be marked on layout as
+    // much as on the characters.
+    const glyph = traceable(drill, unit, track);
+    if (glyph && index % 3 === 1) {
+      out.push({
+        kind: "trace",
+        id: `${seed}#trace`,
+        prompt: glyph,
+        promptRoman: drill.roman,
+        gloss: drill.gloss,
+        target: drill.target,
+      });
+    }
+
     // Every third line is also spoken. Recording all fourteen would turn a ten
     // minute quiz into a forty minute session and nobody would finish it.
     if (index % 3 === 0) {
@@ -337,9 +419,10 @@ export function buildExercises(unit: Unit, module: Module): Exercise[] {
 
 /** Mark one answer. Returns 0-100 so it lands on the same scale as speech. */
 export function mark(exercise: Exercise, given: string) {
-  // A spoken line is marked by the grader, not here. Returning a pass for it
-  // would hand out a mark nobody measured.
-  if (exercise.kind === "speak") return 0;
+  // A spoken line is marked by the speech grader and a written one by the
+  // trace comparison, both of which measure something this function cannot
+  // see. Returning a pass here would hand out a mark nobody took.
+  if (exercise.kind === "speak" || exercise.kind === "trace") return 0;
   if (exercise.kind === "blank" || exercise.kind === "build") {
     return normalise(given) === normalise(exercise.answer) ? FULL_MARK : 0;
   }
