@@ -17,7 +17,16 @@ type Quiz = {
   askGap: string;
   askBuild: string;
   askSpeak: string;
+  askListen: string;
+  askTrace: string;
   listen: string;
+  playAgain: string;
+  traceHint: string;
+  clear: string;
+  submitTrace: string;
+  traceScore: (score: number) => string;
+  traceDetail: (accuracy: number, coverage: number) => string;
+  traceEmpty: string;
   gapPlaceholder: string;
   buildHint: string;
   undo: string;
@@ -55,7 +64,17 @@ export const QUIZ: Record<Locale, Quiz> = {
     askGap: "Fill the gap",
     askBuild: "Put the line back together",
     askSpeak: "Say this line out loud",
+    askListen: "Listen, then choose what you heard",
+    askTrace: "Write this character",
     listen: "Hear it",
+    playAgain: "Play again",
+    traceHint: "Trace over the grey character. Lift the pen between strokes.",
+    clear: "Clear",
+    submitTrace: "Mark my writing",
+    traceScore: (score) => `Scored ${score} out of 100`,
+    traceDetail: (accuracy, coverage) =>
+      `${accuracy}% of your strokes landed on the character, and they reached ${coverage}% of it.`,
+    traceEmpty: "There is nothing written in the box yet.",
     gapPlaceholder: "Type the missing word",
     buildHint: "Tap the pieces in order.",
     undo: "Undo",
@@ -92,7 +111,17 @@ export const QUIZ: Record<Locale, Quiz> = {
     askGap: "Isi bagian yang kosong",
     askBuild: "Susun ulang kalimatnya",
     askSpeak: "Ucapkan kalimat ini",
+    askListen: "Dengarkan, lalu pilih yang Anda dengar",
+    askTrace: "Tulis karakter ini",
     listen: "Dengarkan",
+    playAgain: "Putar lagi",
+    traceHint: "Ikuti garis karakter abu-abu. Angkat pena di antara goresan.",
+    clear: "Hapus",
+    submitTrace: "Nilai tulisan saya",
+    traceScore: (score) => `Nilainya ${score} dari 100`,
+    traceDetail: (accuracy, coverage) =>
+      `${accuracy}% goresan Anda jatuh di atas karakternya, dan mencapai ${coverage}% bagiannya.`,
+    traceEmpty: "Belum ada tulisan di kotaknya.",
     gapPlaceholder: "Ketik kata yang hilang",
     buildHint: "Ketuk potongannya sesuai urutan.",
     undo: "Batalkan",

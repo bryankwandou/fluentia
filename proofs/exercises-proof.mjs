@@ -20,6 +20,7 @@ import {
   tokenise,
   speechLangFor,
 } from "./exercises.mjs";
+import { tracedScript } from "./tracing.mjs";
 import mods from "./modules.cjs";
 
 const { ALL_MODULES } = mods;
@@ -47,6 +48,8 @@ let choices = 0;
 let blanks = 0;
 let builds = 0;
 let speaks = 0;
+let listens = 0;
+let traces = 0;
 const firstFailures = [];
 
 for (const module of ALL_MODULES) {
@@ -126,6 +129,48 @@ for (const module of ALL_MODULES) {
         }
       }
 
+      if (item.kind === "listen") {
+        listens += 1;
+        // The line is spoken, not printed. If the prompt carried the text the
+        // question would be a reading one wearing a headphone icon.
+        if (item.spoken !== item.target) {
+          firstFailures.push(`${item.id} would play something other than its line`);
+        }
+        if (item.options.length !== 4) {
+          firstFailures.push(`${item.id} offered ${item.options.length} options`);
+        }
+        if (new Set(item.options).size !== item.options.length) {
+          firstFailures.push(`${item.id} repeats an option`);
+        }
+        if (!item.options.includes(item.answer)) {
+          firstFailures.push(`${item.id} does not offer its own answer`);
+        }
+        if (mark(item, item.answer) !== 100) {
+          firstFailures.push(`${item.id} rejects its own answer`);
+        }
+        for (const option of item.options) {
+          if (option !== item.answer && mark(item, option) !== 0) {
+            firstFailures.push(`${item.id} accepts a distractor`);
+          }
+        }
+      }
+
+      if (item.kind === "trace") {
+        traces += 1;
+        // One character, and one the line it came from actually contains.
+        if (Array.from(item.prompt).length !== 1) {
+          firstFailures.push(`${item.id} asks for ${item.prompt.length} characters`);
+        }
+        if (!item.target.includes(item.prompt)) {
+          firstFailures.push(`${item.id} asks for a character its line does not use`);
+        }
+        // The mark comes from comparing bitmaps in the browser. Handing one
+        // out here would be a mark for writing nothing.
+        if (mark(item, item.prompt) !== 0) {
+          firstFailures.push(`${item.id} awarded a mark without any writing`);
+        }
+      }
+
       if (item.kind === "speak") {
         speaks += 1;
         // A spoken question carries no mark of its own; the grader supplies it.
@@ -142,12 +187,29 @@ if (firstFailures.length === 0) {
   report("every question resolves to one answer", `${total} questions across ${ALL_MODULES.length} modules`);
 }
 
-console.log(`        ${choices} multiple choice, ${blanks} gap fills, ${builds} sentence builds, ${speaks} spoken`);
+console.log(
+  `        ${choices} multiple choice, ${blanks} gap fills, ${builds} sentence builds,\n` +
+    `        ${listens} listening, ${traces} handwriting, ${speaks} spoken`
+);
 
-check("all four shapes are represented", choices > 0 && blanks > 0 && builds > 0 && speaks > 0);
-if (choices > 0 && blanks > 0 && builds > 0 && speaks > 0) {
-  report("all four shapes are represented");
+const shapes = [choices, blanks, builds, listens, traces, speaks];
+check("all six shapes are represented", shapes.every((n) => n > 0));
+if (shapes.every((n) => n > 0)) {
+  report("all six shapes are represented");
 }
+
+// Handwriting only belongs where a script is written by hand. A Latin word in
+// a tracing box would be a spelling test drawn badly.
+const latin = ALL_MODULES.filter((module) => !tracedScript(module.track));
+check(
+  "no handwriting is asked for in a Latin script",
+  latin.every((module) =>
+    module.units.every((unit) =>
+      buildExercises(unit, module).every((item) => item.kind !== "trace")
+    )
+  ),
+  `${latin.length} modules checked`
+);
 
 console.log("\n--- the same quiz twice ---");
 
