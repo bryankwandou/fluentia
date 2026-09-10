@@ -319,7 +319,11 @@ export function buildExercises(unit: Unit, module: Module): Exercise[] {
         prompt: drill.gloss,
         promptRoman: drill.roman,
         tokens: shuffle(tokens, `${seed}b`),
-        answer: drill.target,
+        // The answer is what the tiles can actually produce, not the printed
+        // line. They differ wherever the line carries something the tiles do
+        // not: punctuation everywhere, and in beginner Japanese the spaces put
+        // between phrases to make a kana-only sentence readable.
+        answer: assemble(tokens, track),
         target: drill.target,
       });
     } else if (slot === 3 && gap) {

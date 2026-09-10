@@ -12,6 +12,8 @@
  * close. Treat missing pinyin as a content bug.
  */
 
+import { JAPANESE_MODULES } from "./modules-japanese";
+
 export type Drill = {
   target: string;
   roman: string;
@@ -1427,7 +1429,7 @@ export const ENGLISH_MODULES: Module[] = [
   },
 ];
 
-export const ALL_MODULES = [...HSK_MODULES, ...ENGLISH_MODULES];
+export const ALL_MODULES = [...HSK_MODULES, ...ENGLISH_MODULES, ...JAPANESE_MODULES];
 
 export function getModule(code: string) {
   return ALL_MODULES.find(

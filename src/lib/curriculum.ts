@@ -67,6 +67,20 @@ const englishLevels: Level[] = [
   { code: "TOEFL 100", title: "Academic ceiling", stage: "native", words: 12000, hours: 300, can: "Sit TOEFL at 100+ including integrated writing and speaking" },
 ];
 
+/**
+ * Japanese runs on JLPT rather than CEFR, and the two lowest rungs are the two
+ * written modules that exist for it. Listing the ladder under CEFR codes meant
+ * those modules answered to a name no Japanese learner uses, and no rung on the
+ * catalogue pointed at them.
+ */
+const jlptLevels: Level[] = [
+  { code: "JLPT N5", title: "Kana and the first sentences", stage: "starter", words: 800, hours: 90, can: "Read both kana, introduce yourself, handle prices and times" },
+  { code: "JLPT N4", title: "Linking clauses and everyday keigo", stage: "starter", words: 1500, hours: 150, can: "Join clauses naturally and take a polite phone call" },
+  { code: "JLPT N3", title: "Bridge to the newspaper", stage: "builder", words: 3750, hours: 300, can: "Follow everyday conversation at speed and read short articles" },
+  { code: "JLPT N2", title: "Working proficiency", stage: "operator", words: 6000, hours: 450, can: "Handle meetings, contracts and broadcast news" },
+  { code: "JLPT N1", title: "Full command", stage: "native", words: 10000, hours: 700, can: "Read abstract prose and argue a position without hedging" },
+];
+
 export const TRACKS: Track[] = [
   {
     slug: "mandarin",
@@ -98,7 +112,7 @@ export const TRACKS: Track[] = [
     family: "Japonic",
     learners: "125M speakers",
     frameworks: ["JLPT N5-N1", "Kanji Kentei"],
-    levels: [...kidsLevels, ...cefrLevels("Japanese")],
+    levels: [...kidsLevels, ...jlptLevels],
     featured: true,
   },
   {

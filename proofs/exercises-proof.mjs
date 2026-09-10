@@ -273,8 +273,19 @@ console.log("\n--- the voice the browser is told to use ---");
 
 check("Mandarin reads as Chinese", speechLangFor("mandarin") === "zh-CN");
 check("English reads as English", speechLangFor("english") === "en-US");
+check("Japanese reads as Japanese", speechLangFor("japanese") === "ja-JP");
 check("an unmapped track falls back rather than guessing", speechLangFor("swahili") === "en-US");
-report("speech tags map to the track", "zh-CN / en-US");
+// Every written track has to have a voice. A module whose lines are read out
+// in the wrong language teaches a pronunciation that does not exist.
+const voiceless = [...new Set(ALL_MODULES.map((m) => m.track))].filter(
+  (track) => track !== "english" && speechLangFor(track) === "en-US"
+);
+check(
+  "every written track has a voice of its own",
+  voiceless.length === 0,
+  voiceless.length ? voiceless.join(", ") : `${new Set(ALL_MODULES.map((m) => m.track)).size} tracks`
+);
+report("speech tags map to the track", "zh-CN / en-US / ja-JP");
 
 console.log("\n--- how much of this a person could actually mark by hand ---");
 
