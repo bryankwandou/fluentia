@@ -1,0 +1,215 @@
+/**
+ * Korean syllabus content, TOPIK I.
+ *
+ * TOPIK I is one certificate covering what other frameworks split into two
+ * beginner levels, so it is one module here rather than two. The ladder above
+ * it (TOPIK II, levels 3 to 6) is on the catalogue and not yet written, which
+ * the module page says plainly rather than implying otherwise.
+ *
+ * Romanisation is Revised Romanisation, the system used on Korean road signs,
+ * and it is there for a learner to read. Korean has no contrastive tone, so
+ * these lines are graded on transcript. Hangul is written by hand, so the
+ * handwriting box appears on this track the way it does on Chinese.
+ */
+
+import type { Module } from "./modules";
+
+export const KOREAN_MODULES: Module[] = [
+  {
+    code: "TOPIK I",
+    track: "korean",
+    title: "Hangul and the polite everyday",
+    summary:
+      "The alphabet, both number systems, the particles that hold a sentence together, and the 요 ending that carries almost all ordinary speech.",
+    hours: 120,
+    words: 1500,
+    exitCriteria:
+      "Read hangul aloud without spelling it out, and hold a ten-turn exchange about yourself, prices, times and daily routine, switching between 입니다 and 요 as the situation asks.",
+    units: [
+      {
+        id: "topik1-u0",
+        title: "Hangul: the vowels and the block",
+        focus: "How a syllable is assembled on the page, which is what makes hangul readable in a day.",
+        grammar: [
+          "A block is a consonant, then a vowel, and sometimes a final consonant underneath",
+          "A vertical vowel stands to the right of the consonant; a horizontal one sits below it",
+          "ㅇ is silent at the start of a block and 'ng' at the end, so it never has one job",
+        ],
+        vocabulary: ["ㅏ", "ㅓ", "ㅗ", "ㅜ", "ㅡ", "ㅣ", "ㅇ", "ㄱ", "ㄴ", "ㅁ"],
+        drills: [
+          { target: "ㅏ", roman: "a", gloss: "The vowel in 'father'." },
+          { target: "ㅓ", roman: "eo", gloss: "The vowel in 'son', mouth open but unrounded." },
+          { target: "ㅗ", roman: "o", gloss: "The vowel in 'go', lips rounded." },
+          { target: "ㅜ", roman: "u", gloss: "The vowel in 'boot'." },
+          { target: "ㅡ", roman: "eu", gloss: "Lips flat, tongue back — no English vowel matches it." },
+          { target: "ㅣ", roman: "i", gloss: "The vowel in 'meet'." },
+          { target: "아", roman: "a", gloss: "The vowel standing alone, carried by the silent ㅇ." },
+          { target: "가", roman: "ga", gloss: "A consonant and a vertical vowel, side by side." },
+          { target: "고", roman: "go", gloss: "A consonant and a horizontal vowel, stacked." },
+          { target: "강", roman: "gang", gloss: "A block closed by a final consonant — river." },
+          { target: "오이", roman: "oi", gloss: "Cucumber." },
+          { target: "아이", roman: "ai", gloss: "Child." },
+          { target: "우유", roman: "uyu", gloss: "Milk." },
+          { target: "한국", roman: "Hanguk", gloss: "Korea." },
+        ],
+        examTask: "TOPIK I reading, warm-up: read fourteen unfamiliar blocks aloud without being told the words.",
+      },
+      {
+        id: "topik1-u1",
+        title: "Hangul and introducing yourself",
+        focus: "The formal copula, and the topic particle that decides what a sentence is about.",
+        grammar: [
+          "은/는 marks the topic — 은 after a consonant, 는 after a vowel",
+          "입니다 closes a formal sentence; 입니까 turns it into a question",
+          "이/가 marks the subject and is not a spelling variant of 은/는",
+        ],
+        vocabulary: ["저", "이름", "학생", "선생님", "한국", "사람", "누구", "안녕하세요"],
+        drills: [
+          { target: "안녕하세요.", roman: "annyeonghaseyo.", gloss: "Hello." },
+          { target: "저는 김민수입니다.", roman: "jeoneun Gim Minsu imnida.", gloss: "I am Kim Minsu." },
+          { target: "만나서 반갑습니다.", roman: "mannaseo bangapseumnida.", gloss: "Pleased to meet you." },
+          { target: "저는 학생입니다.", roman: "jeoneun haksaeng imnida.", gloss: "I am a student." },
+          { target: "선생님이십니까?", roman: "seonsaengnim isimnikka?", gloss: "Are you a teacher?" },
+          { target: "네, 맞습니다.", roman: "ne, matseumnida.", gloss: "Yes, that is right." },
+          { target: "아니요, 학생이 아닙니다.", roman: "aniyo, haksaengi animnida.", gloss: "No, I am not a student." },
+          { target: "저는 한국 사람입니다.", roman: "jeoneun Hanguk saram imnida.", gloss: "I am Korean." },
+          { target: "저분은 누구입니까?", roman: "jeobuneun nugu imnikka?", gloss: "Who is that person?" },
+          { target: "이름이 뭐예요?", roman: "ireumi mwoyeyo?", gloss: "What is your name?" },
+          { target: "제 이름은 유진이에요.", roman: "je ireumeun Yujin ieyo.", gloss: "My name is Yujin." },
+          { target: "안녕히 가세요.", roman: "annyeonghi gaseyo.", gloss: "Goodbye, to the person leaving." },
+        ],
+        examTask: "TOPIK I listening, part 1: catch a name and an occupation from a two-line introduction.",
+      },
+      {
+        id: "topik1-u2",
+        title: "This, that, and what belongs to whom",
+        focus: "Existence as its own verb, which is where English 'have' stops being a safe guide.",
+        grammar: [
+          "이 is near the speaker, 그 near the listener or already known, 저 away from both",
+          "있다 and 없다 state that something exists or does not, and stand in for 'have'",
+          "거 is the spoken form of 것, and possession is marked by the bare name",
+        ],
+        vocabulary: ["이것", "그것", "저것", "책", "가방", "시계", "뭐", "것"],
+        drills: [
+          { target: "이것은 책입니다.", roman: "igeoseun chaek imnida.", gloss: "This is a book." },
+          { target: "그것은 뭐예요?", roman: "geugeoseun mwoyeyo?", gloss: "What is that?" },
+          { target: "저것은 시계예요.", roman: "jeogeoseun sigyeyeyo.", gloss: "That over there is a clock." },
+          { target: "이 가방은 제 것이에요.", roman: "i gabangeun je geosieyo.", gloss: "This bag is mine." },
+          { target: "그 책은 누구 거예요?", roman: "geu chaegeun nugu geoyeyo?", gloss: "Whose book is that?" },
+          { target: "유진 씨 거예요.", roman: "Yujin ssi geoyeyo.", gloss: "It is Yujin's." },
+          { target: "시간이 있어요?", roman: "sigani isseoyo?", gloss: "Do you have time?" },
+          { target: "아니요, 시간이 없어요.", roman: "aniyo, sigani eopseoyo.", gloss: "No, I have no time." },
+          { target: "여기 의자가 있어요.", roman: "yeogi uijaga isseoyo.", gloss: "There is a chair here." },
+          { target: "이것도 책이에요.", roman: "igeotdo chaegieyo.", gloss: "This is a book as well." },
+          { target: "그것은 제 시계가 아니에요.", roman: "geugeoseun je sigyega anieyo.", gloss: "That is not my watch." },
+          { target: "화장실이 어디에 있어요?", roman: "hwajangsiri eodie isseoyo?", gloss: "Where is the toilet?" },
+        ],
+        examTask: "TOPIK I vocabulary: choose the demonstrative that matches who is standing where in a picture.",
+      },
+      {
+        id: "topik1-u3",
+        title: "Two number systems",
+        focus: "Sino-Korean and native Korean numbers, which are not interchangeable and are the commonest beginner error.",
+        grammar: [
+          "Sino-Korean counts money, minutes, months and phone numbers",
+          "Native Korean counts hours, people and things, and stops being used above ninety-nine",
+          "부터 marks a start, 까지 an end, and both attach directly to the noun",
+        ],
+        vocabulary: ["얼마", "원", "시", "분", "오전", "오후", "싸다", "비싸다"],
+        drills: [
+          { target: "이거 얼마예요?", roman: "igeo eolmayeyo?", gloss: "How much is this?" },
+          { target: "삼천 원이에요.", roman: "samcheon wonieyo.", gloss: "It is three thousand won." },
+          { target: "좀 비싸네요.", roman: "jom bissaneyo.", gloss: "That is a bit expensive." },
+          { target: "더 싼 거 있어요?", roman: "deo ssan geo isseoyo?", gloss: "Do you have a cheaper one?" },
+          { target: "지금 몇 시예요?", roman: "jigeum myeot siyeyo?", gloss: "What time is it now?" },
+          { target: "오전 아홉 시 반이에요.", roman: "ojeon ahop si banieyo.", gloss: "It is half past nine in the morning." },
+          { target: "가게는 열 시부터예요.", roman: "gageneun yeol sibuteoyeyo.", gloss: "The shop opens at ten." },
+          { target: "오후 여섯 시까지 일해요.", roman: "ohu yeoseot sikkaji ilhaeyo.", gloss: "I work until six in the evening." },
+          { target: "십 분만 기다려 주세요.", roman: "sip bunman gidaryeo juseyo.", gloss: "Please wait just ten minutes." },
+          { target: "전화번호가 몇 번이에요?", roman: "jeonhwabeonhoga myeot beonieyo?", gloss: "What is your telephone number?" },
+          { target: "월요일부터 수요일까지 쉬어요.", roman: "woryoilbuteo suyoilkkaji swieoyo.", gloss: "I am off from Monday to Wednesday." },
+          { target: "전부 얼마예요?", roman: "jeonbu eolmayeyo?", gloss: "How much is it altogether?" },
+        ],
+        examTask: "TOPIK I listening, part 2: write down the price and the closing time announced in a shop.",
+      },
+      {
+        id: "topik1-u4",
+        title: "Verbs and the 요 ending",
+        focus: "The ending that carries ordinary speech, and the three particles that place an action.",
+        grammar: [
+          "아/어요 is polite without being formal, and covers present and near future",
+          "을/를 marks the object",
+          "에 marks a destination or a point in time; 에서 marks where an action happens",
+        ],
+        vocabulary: ["먹다", "마시다", "가다", "보다", "듣다", "읽다", "사다", "매일"],
+        drills: [
+          { target: "매일 밥을 먹어요.", roman: "maeil babeul meogeoyo.", gloss: "I eat rice every day." },
+          { target: "물을 마셔요.", roman: "mureul masyeoyo.", gloss: "I drink water." },
+          { target: "내일 서울에 가요.", roman: "naeil Seoure gayo.", gloss: "I am going to Seoul tomorrow." },
+          { target: "어제 텔레비전을 봤어요.", roman: "eoje tellebijeoneul bwasseoyo.", gloss: "Yesterday I watched television." },
+          { target: "음악을 안 들어요.", roman: "eumageul an deureoyo.", gloss: "I do not listen to music." },
+          { target: "도서관에서 책을 읽어요.", roman: "doseogwaneseo chaegeul ilgeoyo.", gloss: "I read books at the library." },
+          { target: "역에서 표를 사요.", roman: "yeogeseo pyoreul sayo.", gloss: "I buy a ticket at the station." },
+          { target: "일곱 시에 집을 나가요.", roman: "ilgop sie jibeul nagayo.", gloss: "I leave home at seven." },
+          { target: "뭐 먹을 거예요?", roman: "mwo meogeul geoyeyo?", gloss: "What are you going to eat?" },
+          { target: "아무것도 안 먹었어요.", roman: "amugeotdo an meogeosseoyo.", gloss: "I did not eat anything." },
+          { target: "어디에 갔어요?", roman: "eodie gasseoyo?", gloss: "Where did you go?" },
+          { target: "집에서 공부했어요.", roman: "jibeseo gongbuhaesseoyo.", gloss: "I studied at home." },
+        ],
+        examTask: "TOPIK I grammar: choose the particle missing from a sentence about a daily routine.",
+      },
+      {
+        id: "topik1-u5",
+        title: "Describing, and the first honorific",
+        focus: "Korean adjectives are verbs, and the two negatives say different things about why.",
+        grammar: [
+          "Adjectives conjugate like verbs: 예쁘다 becomes 예뻐요, never 예쁘이에요",
+          "안 negates by choice; 못 says you are unable",
+          "(으)시 raises the subject, and is used about the other person rather than yourself",
+        ],
+        vocabulary: ["크다", "작다", "맛있다", "재미있다", "조용하다", "깨끗하다", "어렵다", "덥다"],
+        drills: [
+          { target: "이 음식은 맛있어요.", roman: "i eumsigeun masisseoyo.", gloss: "This food is delicious." },
+          { target: "오늘은 너무 더워요.", roman: "oneureun neomu deowoyo.", gloss: "Today is too hot." },
+          { target: "이 방은 조용해요.", roman: "i bangeun joyonghaeyo.", gloss: "This room is quiet." },
+          { target: "조용한 방을 좋아해요.", roman: "joyonghan bangeul joahaeyo.", gloss: "I like quiet rooms." },
+          { target: "한국어는 안 어려워요.", roman: "hangugeoneun an eoryeowoyo.", gloss: "Korean is not difficult." },
+          { target: "별로 크지 않아요.", roman: "byeollo keuji anayo.", gloss: "It is not particularly big." },
+          { target: "방이 아주 깨끗해요.", roman: "bangi aju kkaekkeutaeyo.", gloss: "The room is very clean." },
+          { target: "어제는 재미있었어요.", roman: "eojeneun jaemiisseosseoyo.", gloss: "Yesterday was enjoyable." },
+          { target: "작은 가방을 사고 싶어요.", roman: "jageun gabangeul sago sipeoyo.", gloss: "I want to buy a small bag." },
+          { target: "선생님은 지금 바쁘세요.", roman: "seonsaengnimeun jigeum bappeuseyo.", gloss: "The teacher is busy at the moment." },
+          { target: "어디가 아프세요?", roman: "eodiga apeuseyo?", gloss: "Where does it hurt?" },
+          { target: "저는 매운 음식을 못 먹어요.", roman: "jeoneun maeun eumsigeul mot meogeoyo.", gloss: "I cannot eat spicy food." },
+        ],
+        examTask: "TOPIK I grammar: pick between 안 and 못 from the reason given in the sentence.",
+      },
+      {
+        id: "topik1-u6",
+        title: "Asking, inviting, apologising",
+        focus: "The set phrases that keep a conversation alive once comprehension runs out.",
+        grammar: [
+          "아/어 주세요 asks someone else to do something for you",
+          "(으)ㄹ까요 proposes and leaves the decision open; (으)ㅂ시다 decides it",
+          "지만 joins two clauses in contrast, and is how a refusal is softened",
+        ],
+        vocabulary: ["주세요", "같이", "잠깐", "죄송합니다", "다시", "천천히", "알겠습니다", "또"],
+        drills: [
+          { target: "죄송한데 다시 한 번 말해 주세요.", roman: "joesonghande dasi han beon malhae juseyo.", gloss: "Sorry, please say that once more." },
+          { target: "천천히 말해 주세요.", roman: "cheoncheonhi malhae juseyo.", gloss: "Please speak slowly." },
+          { target: "같이 점심 먹을까요?", roman: "gachi jeomsim meogeulkkayo?", gloss: "Shall we have lunch together?" },
+          { target: "좋아요, 갑시다.", roman: "joayo, gapsida.", gloss: "Good, let us go." },
+          { target: "잠깐만 기다려 주세요.", roman: "jamkkanman gidaryeo juseyo.", gloss: "Please wait a moment." },
+          { target: "미안하지만 지금 바빠요.", roman: "mianhajiman jigeum bappayo.", gloss: "I am sorry, but I am busy right now." },
+          { target: "이거 좀 보여 주세요.", roman: "igeo jom boyeo juseyo.", gloss: "Please show me this." },
+          { target: "알겠습니다.", roman: "algesseumnida.", gloss: "Understood." },
+          { target: "잘 모르겠어요.", roman: "jal moreugesseoyo.", gloss: "I do not quite follow." },
+          { target: "영어로 해도 돼요?", roman: "yeongeoro haedo dwaeyo?", gloss: "Is it all right if I use English?" },
+          { target: "정말 감사합니다.", roman: "jeongmal gamsahamnida.", gloss: "Thank you very much." },
+          { target: "또 만나요.", roman: "tto mannayo.", gloss: "See you again." },
+        ],
+        examTask: "TOPIK I speaking rehearsal: decline an invitation politely and propose another day.",
+      },
+    ],
+  },
+];

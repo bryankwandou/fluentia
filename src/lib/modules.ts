@@ -13,6 +13,7 @@
  */
 
 import { JAPANESE_MODULES } from "./modules-japanese";
+import { KOREAN_MODULES } from "./modules-korean";
 
 export type Drill = {
   target: string;
@@ -55,6 +56,34 @@ export const HSK_MODULES: Module[] = [
     exitCriteria:
       "Produce all four tones distinctly in isolation and in two-syllable words, and hold a six-turn exchange about name, nationality and family.",
     units: [
+      {
+        id: "hsk1-u0",
+        title: "Pinyin: the sounds under the tones",
+        focus: "The vowels and the three consonant series English speakers merge, drilled before any tone is added.",
+        grammar: [
+          "Pinyin spells Mandarin sounds, not English ones: c is 'ts', q is closer to 'ch', x has no English equal",
+          "ü is i-lips with u-rounding, and is written u after j, q, x, y",
+          "The -i in si, shi and ri is not a vowel at all but a held buzz of the consonant before it",
+        ],
+        vocabulary: ["啊", "衣", "屋", "鱼", "饿", "妈", "八", "四", "十", "日"],
+        drills: [
+          { target: "啊", roman: "a1", gloss: "The open vowel, the easiest sound in the language." },
+          { target: "衣", roman: "yi1", gloss: "Clothing — the vowel in 'meet'." },
+          { target: "屋", roman: "wu1", gloss: "Room — the vowel in 'boot', lips tight." },
+          { target: "鱼", roman: "yu2", gloss: "Fish — lips rounded for u, tongue placed for i." },
+          { target: "饿", roman: "e4", gloss: "Hungry — a back vowel English does not have." },
+          { target: "妈", roman: "ma1", gloss: "Mother." },
+          { target: "八", roman: "ba1", gloss: "Eight — b is unaspirated, closer to English p in 'spin'." },
+          { target: "怕", roman: "pa4", gloss: "To fear — p is the aspirated pair of b." },
+          { target: "四", roman: "si4", gloss: "Four — the -i here is a buzz, not a vowel." },
+          { target: "十", roman: "shi2", gloss: "Ten — tongue curled back." },
+          { target: "日", roman: "ri4", gloss: "Sun, day — the hardest initial in the set." },
+          { target: "词", roman: "ci2", gloss: "Word — c is 'ts', never English k." },
+          { target: "吃", roman: "chi1", gloss: "To eat." },
+          { target: "中国", roman: "zhong1 guo2", gloss: "China." },
+        ],
+        examTask: "HSK 1 listening, warm-up: distinguish si, shi and xi, then ci, chi and qi, with no tone given.",
+      },
       {
         id: "hsk1-u1",
         title: "Tones and greeting",
@@ -1429,7 +1458,12 @@ export const ENGLISH_MODULES: Module[] = [
   },
 ];
 
-export const ALL_MODULES = [...HSK_MODULES, ...ENGLISH_MODULES, ...JAPANESE_MODULES];
+export const ALL_MODULES = [
+  ...HSK_MODULES,
+  ...ENGLISH_MODULES,
+  ...JAPANESE_MODULES,
+  ...KOREAN_MODULES,
+];
 
 export function getModule(code: string) {
   return ALL_MODULES.find(

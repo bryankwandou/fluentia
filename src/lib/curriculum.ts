@@ -81,6 +81,19 @@ const jlptLevels: Level[] = [
   { code: "JLPT N1", title: "Full command", stage: "native", words: 10000, hours: 700, can: "Read abstract prose and argue a position without hedging" },
 ];
 
+/**
+ * TOPIK collapses what CEFR splits: one certificate, TOPIK I, covers both
+ * beginner levels, and TOPIK II covers the four above it. Listing Korean under
+ * CEFR meant the written module answered to a code no Korean learner sits.
+ */
+const topikLevels: Level[] = [
+  { code: "TOPIK I", title: "Hangul and the polite everyday", stage: "starter", words: 1500, hours: 120, can: "Read hangul fluently, introduce yourself, handle prices, times and a daily routine" },
+  { code: "TOPIK II 3", title: "Getting through the week", stage: "builder", words: 3000, hours: 220, can: "Handle public offices, describe experiences, follow a slow broadcast" },
+  { code: "TOPIK II 4", title: "Opinion and argument", stage: "builder", words: 5000, hours: 340, can: "Argue a position and read a newspaper column" },
+  { code: "TOPIK II 5", title: "Professional register", stage: "operator", words: 8000, hours: 500, can: "Work in Korean and read specialist material outside your field" },
+  { code: "TOPIK II 6", title: "Full command", stage: "native", words: 12000, hours: 700, can: "Study or practise professionally with no allowance made" },
+];
+
 export const TRACKS: Track[] = [
   {
     slug: "mandarin",
@@ -145,7 +158,7 @@ export const TRACKS: Track[] = [
     family: "Koreanic",
     learners: "82M speakers",
     frameworks: ["TOPIK I-II", "CEFR"],
-    levels: [...kidsLevels, ...cefrLevels("Korean")],
+    levels: [...kidsLevels, ...topikLevels],
   },
   {
     slug: "french",
