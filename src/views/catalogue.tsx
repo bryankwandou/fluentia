@@ -71,19 +71,23 @@ export function Catalogue({ locale }: { locale: Locale }) {
               {copy.longTailBody}
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
+              {/* Plain labels, not links. Each one used to open the tutor,
+                  which made the catalogue read as a door into a chat window. */}
               {LONG_TAIL.map((language) => (
-                <Link
+                <span
                   key={language}
-                  href={path(
-                    locale,
-                    `/tutor?language=${encodeURIComponent(language)}`
-                  )}
-                  className="rounded-lg border border-line px-2.5 py-1.5 text-[13px] text-muted transition-colors hover:border-jade-400/50 hover:text-paper"
+                  className="rounded-lg border border-line px-2.5 py-1.5 text-[13px] text-muted"
                 >
                   {language}
-                </Link>
+                </span>
               ))}
             </div>
+            <Link
+              href={path(locale, "/tutor")}
+              className="mt-5 inline-block text-[13px] text-muted underline underline-offset-4 hover:text-paper"
+            >
+              {copy.longTailLink}
+            </Link>
           </div>
         </Reveal>
       </div>

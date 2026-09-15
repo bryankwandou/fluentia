@@ -4,6 +4,7 @@ import { COVERAGE } from "@/copy/proof";
 import { LONG_TAIL, TRACKS } from "@/lib/curriculum";
 import { path, type Locale } from "@/lib/i18n";
 import { ALL_MODULES, getModule, slugifyModule } from "@/lib/modules";
+import { rungHref } from "@/lib/routes";
 
 /**
  * Written for whoever has to check this rather than for whoever has to be sold
@@ -25,12 +26,7 @@ export function Coverage({ locale }: { locale: Locale }) {
         units: written?.units.length ?? 0,
         drills:
           written?.units.reduce((sum, unit) => sum + unit.drills.length, 0) ?? 0,
-        href: path(
-          locale,
-          written
-            ? `/modules/${slug}`
-            : `/tutor?language=${encodeURIComponent(track.language)}&level=${encodeURIComponent(level.code)}`
-        ),
+        href: path(locale, rungHref(track, level)),
       };
     })
   );

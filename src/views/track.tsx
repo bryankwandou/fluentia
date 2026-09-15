@@ -4,6 +4,7 @@ import { TRACK } from "@/copy/catalogue";
 import { STAGE_COPY, type Track as TrackData } from "@/lib/curriculum";
 import { getModule, slugifyModule } from "@/lib/modules";
 import { path, type Locale } from "@/lib/i18n";
+import { rungHref } from "@/lib/routes";
 
 export function Track({ locale, track }: { locale: Locale; track: TrackData }) {
   const copy = TRACK[locale];
@@ -31,13 +32,7 @@ export function Track({ locale, track }: { locale: Locale; track: TrackData }) {
   );
 
   // The same rule the rung cards use, applied to the opening button.
-  const firstCode = track.levels[0].code;
-  const firstSlug = slugifyModule(firstCode);
-  const firstModule = getModule(firstSlug);
-  const firstRung =
-    firstModule?.track === track.slug
-      ? `/modules/${firstSlug}`
-      : `/tutor?language=${encodeURIComponent(track.language)}&level=${encodeURIComponent(firstCode)}`;
+  const firstRung = rungHref(track, track.levels[0]);
 
   return (
     <div className="relative overflow-hidden">
@@ -112,9 +107,7 @@ export function Track({ locale, track }: { locale: Locale; track: TrackData }) {
             const moduleSlug = slugifyModule(level.code);
             const found = getModule(moduleSlug);
             const written = found?.track === track.slug ? found : null;
-            const href = written
-              ? `/modules/${moduleSlug}`
-              : `/tutor?language=${encodeURIComponent(track.language)}&level=${encodeURIComponent(level.code)}`;
+            const href = rungHref(track, level);
 
             return (
               <StaggerItem key={level.code}>

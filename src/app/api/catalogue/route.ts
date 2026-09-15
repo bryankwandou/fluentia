@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { LONG_TAIL, TRACKS } from "@/lib/curriculum";
 import { path } from "@/lib/i18n";
 import { ALL_MODULES, getModule, slugifyModule } from "@/lib/modules";
+import { rungHref } from "@/lib/routes";
 
 export const runtime = "nodejs";
 export const dynamic = "force-static";
@@ -31,14 +32,13 @@ export function GET() {
         stage: level.stage,
         words: level.words,
         hours: level.hours,
-        /** "written" carries authored units; "tutor" is generated per session. */
-        material: written ? ("written" as const) : ("tutor" as const),
+        /** "written" carries authored units; "unwritten" has none yet. */
+        material: written ? ("written" as const) : ("unwritten" as const),
         units: written?.units.length ?? 0,
         drills:
           written?.units.reduce((sum, unit) => sum + unit.drills.length, 0) ?? 0,
-        url: written
-          ? `/modules/${slug}`
-          : `/tutor?language=${encodeURIComponent(track.language)}&level=${encodeURIComponent(level.code)}`,
+        // Never the tutor. An unwritten rung opens its own free page.
+        url: rungHref(track, level),
       };
     });
 
@@ -99,7 +99,7 @@ export function GET() {
       tracks: tracks.length,
       levels: levels.length,
       writtenLevels: written.length,
-      tutorLevels: levels.length - written.length,
+      unwrittenLevels: levels.length - written.length,
       modules: ALL_MODULES.length,
       units: written.reduce((sum, level) => sum + level.units, 0),
       drills: written.reduce((sum, level) => sum + level.drills, 0),

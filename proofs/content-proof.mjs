@@ -139,7 +139,7 @@ const deepest = Math.max(
 );
 console.log(`   deepest written rung holds ${deepest} drill lines`);
 console.log(`   ${totalLines} written lines across ${ALL_MODULES.length} rungs`);
-console.log("   the remaining rungs in the catalogue are taught by the tutor");
+console.log("   the remaining rungs open a free page marked not written; none opens the tutor");
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -16,9 +16,7 @@ function hrefFor(track, level) {
   const slug = slugifyModule(level.code);
   const found = getModule(slug);
   const written = found?.track === track.slug ? found : null;
-  return written
-    ? `/modules/${slug}`
-    : `/tutor?language=${encodeURIComponent(track.language)}&level=${encodeURIComponent(level.code)}`;
+  return written ? `/modules/${slug}` : `/catalogue/${track.slug}/${slug}`;
 }
 
 const targets = [];
@@ -101,6 +99,17 @@ console.log(
     ? `\n${broken.length} of ${results.length} destinations did not return 200 -> FAIL`
     : `\nall ${results.length} destinations returned 200 -> PASS`
 );
+
+// The complaint behind this check was that the catalogue led into the tutor.
+// No rung may point there any more; the tutor is only reachable from its own
+// labelled links.
+const tutorRungs = TRACKS.flatMap((track) =>
+  track.levels.map((level) => hrefFor(track, level))
+).filter((href) => href.startsWith("/tutor"));
+console.log(
+  `no rung opens the AI tutor: ${tutorRungs.length === 0 ? "PASS" : `FAIL (${tutorRungs.length})`}`
+);
+if (tutorRungs.length) process.exitCode = 1;
 
 // The point of the exercise is that no rung is a dead end, so that gets its
 // own line rather than being buried in the total.

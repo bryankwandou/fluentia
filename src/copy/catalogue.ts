@@ -19,6 +19,7 @@ type Catalogue = {
   rungs: (count: number, top: string) => string;
   longTailHeading: string;
   longTailBody: string;
+  longTailLink: string;
 };
 
 type Track = {
@@ -86,7 +87,8 @@ export const CATALOGUE: Record<Locale, Catalogue> = {
     rungs: (count, top) => `${count} rungs · ${top} at the top`,
     longTailHeading: "Also taught, without a certification ladder",
     longTailBody:
-      "Open the tutor, type any of these, and it will hold a graded conversation. Mapped syllabi arrive for the most requested ones first.",
+      "No written lessons exist for these yet, and none are claimed. The AI tutor, which needs a Pro account, can hold a graded conversation in any of them. Written syllabi come first to the most requested.",
+    longTailLink: "Open the AI tutor (Pro)",
   },
   id: {
     metaTitle: "Katalog",
@@ -98,7 +100,8 @@ export const CATALOGUE: Record<Locale, Catalogue> = {
     rungs: (count, top) => `${count} jenjang · ${top} di puncaknya`,
     longTailHeading: "Juga diajarkan, tanpa jenjang sertifikasi",
     longTailBody:
-      "Buka tutornya, ketik salah satu dari ini, dan tutor akan mengajak Anda bercakap cakap dengan penilaian. Silabus terpetakan akan menyusul, dimulai dari yang paling banyak diminta.",
+      "Bahasa bahasa ini belum punya materi tertulis, dan kami tidak mengklaimnya. Tutor AI, yang butuh akun Pro, bisa mengajak bercakap dengan penilaian di bahasa mana pun dari daftar ini. Silabus tertulis dibuat lebih dulu untuk yang paling banyak diminta.",
+    longTailLink: "Buka tutor AI (Pro)",
   },
 };
 
@@ -111,16 +114,16 @@ export const TRACK: Record<Locale, Track> = {
       hours: "hours the exam boards assume, not hours supplied here",
       words: (authored, total) =>
         `words the top rung demands · ${authored} of ${total} rungs have written units here`,
-      lines: "authored drill lines on this track; the rest is tutor-led",
-      noLines: "authored drill lines: this whole track is tutor-led",
+      lines: "authored drill lines on this track; the other rungs are not written yet",
+      noLines: "authored drill lines: nothing on this track is written yet",
     },
     written: (units) => `${units} written units`,
-    tutorLed: "Tutor-led",
+    tutorLed: "Not written yet",
     target: "Target for this rung",
     linesWritten: (lines) => `${lines} drill lines written`,
     noLinesYet: "No written lines yet",
     openModule: "Open module →",
-    openTutor: "Open tutor →",
+    openTutor: "See the rung →",
     notFound: "Track not found",
     meta: (language, topCode) =>
       `Every rung of the ${language} ladder, from first sounds through ${topCode}, graded by speech.`,
@@ -133,16 +136,16 @@ export const TRACK: Record<Locale, Track> = {
       hours: "jam yang diasumsikan lembaga ujian, bukan jam yang disediakan di sini",
       words: (authored, total) =>
         `kata yang dituntut jenjang puncak · ${authored} dari ${total} jenjang sudah punya unit tertulis di sini`,
-      lines: "baris latihan yang ditulis di jalur ini; sisanya dipandu tutor",
-      noLines: "baris latihan tertulis: seluruh jalur ini dipandu tutor",
+      lines: "baris latihan yang ditulis di jalur ini; jenjang lain belum ditulis",
+      noLines: "baris latihan tertulis: belum ada yang ditulis di jalur ini",
     },
     written: (units) => `${units} unit tertulis`,
-    tutorLed: "Dipandu tutor",
+    tutorLed: "Belum ditulis",
     target: "Target untuk jenjang ini",
     linesWritten: (lines) => `${lines} baris latihan tertulis`,
     noLinesYet: "Belum ada baris tertulis",
     openModule: "Buka modul →",
-    openTutor: "Buka tutor →",
+    openTutor: "Lihat jenjang →",
     notFound: "Jalur tidak ditemukan",
     meta: (language, topCode) =>
       `Setiap jenjang tangga ${language}, dari bunyi pertama sampai ${topCode}, dinilai lewat ucapan.`,

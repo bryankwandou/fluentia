@@ -325,18 +325,18 @@ export const COVERAGE: Record<Locale, Coverage> = {
     metaDescription:
       "Every track and every rung in one table, with what sits behind each one and where it goes.",
     heading: "What is actually here",
-    lead: "Every rung of every ladder, with the link it opens and what sits behind it. Rungs marked written have authored units and drill lines with numbered pinyin, which is what the tone grader measures against. The rest are taught by the tutor, grounded on the level descriptor rather than a written unit. Both are usable; they are not the same thing, so they are not counted as the same thing.",
+    lead: "Every rung of every ladder, with the link it opens and what sits behind it. Rungs marked written have authored units and drill lines with numbered pinyin, which is what the tone grader measures against. The rest have nothing written yet. They open a free page that says what the rung asks for and says it is empty. None of them opens the AI tutor.",
     jsonNote: ["The same tree is served as JSON at", "if you would rather diff it than read it."],
     stats: ["tracks with a ladder", "rungs with written units", "authored units", "drill lines"],
     columns: ["Track", "Rung", "Material", "Units", "Lines", "Opens"],
     written: "written",
-    tutorLed: "tutor-led",
+    tutorLed: "not written",
     thinHeading: "Where it is thin",
     thin: (modules, longTail) => [
-      `Written units exist for ${modules} modules across two tracks: HSK 1 through 6 in Mandarin, and Foundation through TOEFL 100 in English. Every other rung on this page runs on the tutor, which is grounded on the level descriptor and the track rather than on authored lines. That is a real difference for the two Chinese ladders: the tone grader reads its target out of numbered pinyin or jyutping, so on a tutor-led rung it is working from whatever romanisation the model supplied for the line it just set rather than from a line that was checked in advance.`,
+      `Written units exist for ${modules} modules across four tracks: HSK 1 to 6 in Mandarin, Foundation to TOEFL 100 in English, JLPT N5 and N4 in Japanese, and TOPIK I in Korean. Every other rung on this page has no written lessons. It opens a plain page that says so. The AI tutor is a separate product behind a Pro account and is linked there under its own heading, never as the place a rung leads.`,
       `Vietnamese does not have that problem, because Vietnamese writes its tones into the line itself and the grader reads them straight off the text. Two of its six are still marked as shared rather than separated: huyền against nặng, and sắc against ngã. Each of those pairs is told apart by a catch in the throat, not by a change in pitch, and pitch is the whole of what gets measured here. Both members are held to one target and the result says which distinction went unjudged, which is a smaller claim than the one a confident-looking number would have made.`,
-      `The practice sets carry the same boundary. Questions are built from authored drill lines, so they exist for those ${modules} modules and nowhere else: a tutor-led rung has a conversation and a speaking grade, but no multiple choice, no gap fills, no listening, no handwriting and no sentence building, because there are no written lines to make them out of.`,
-      `A further ${longTail} languages are reachable in the tutor without a ladder of their own. They are listed on the catalogue as what they are, conversation practice, and are deliberately absent from the table above, which counts rungs, not languages.`,
+      `The practice sets carry the same boundary. Questions are built from authored drill lines, so they exist for those ${modules} modules and nowhere else: an unwritten rung has no multiple choice, no gap fills, no listening, no handwriting and no sentence building, because there are no written lines to make them out of. Nothing is generated to fill the gap.`,
+      `A further ${longTail} languages are named on the catalogue as plain labels, not links, with no written material. They are deliberately absent from the table above, which counts rungs, not languages.`,
     ],
   },
   id: {
@@ -344,18 +344,18 @@ export const COVERAGE: Record<Locale, Coverage> = {
     metaDescription:
       "Semua jalur dan semua jenjang dalam satu tabel, lengkap dengan isi di baliknya dan alamat yang dibukanya.",
     heading: "Apa yang benar benar ada di sini",
-    lead: "Setiap jenjang dari setiap tangga, berikut tautan yang dibukanya dan apa yang ada di baliknya. Jenjang bertanda tertulis punya unit dan baris latihan dengan pinyin bernomor, dan itulah yang dipakai penilai nada sebagai acuan. Sisanya diajar tutor, berpijak pada deskripsi jenjangnya, bukan pada unit tertulis. Keduanya bisa dipakai, tetapi bukan hal yang sama, jadi tidak dihitung sebagai hal yang sama.",
+    lead: "Setiap jenjang dari setiap tangga, berikut tautan yang dibukanya dan apa yang ada di baliknya. Jenjang bertanda tertulis punya unit dan baris latihan dengan pinyin bernomor, dan itulah yang dipakai penilai nada sebagai acuan. Sisanya belum punya materi tertulis. Jenjang itu membuka halaman gratis yang menyebutkan tuntutan jenjangnya dan mengakui bahwa isinya masih kosong. Tidak ada yang membuka tutor AI.",
     jsonNote: ["Pohon yang sama disajikan sebagai JSON di", "kalau Anda lebih suka membandingkannya daripada membacanya."],
     stats: ["jalur yang punya tangga", "jenjang dengan unit tertulis", "unit yang ditulis", "baris latihan"],
     columns: ["Jalur", "Jenjang", "Materi", "Unit", "Baris", "Membuka"],
     written: "tertulis",
-    tutorLed: "dipandu tutor",
+    tutorLed: "belum ditulis",
     thinHeading: "Bagian yang masih tipis",
     thin: (modules, longTail) => [
-      `Unit tertulis baru ada untuk ${modules} modul di dua jalur: HSK 1 sampai 6 untuk Mandarin, dan Foundation sampai TOEFL 100 untuk Inggris. Semua jenjang lain di halaman ini berjalan dengan tutor, yang berpijak pada deskripsi jenjang dan jalurnya, bukan pada baris yang sudah ditulis. Untuk dua tangga bahasa Tionghoa, ini perbedaan yang nyata: penilai nada membaca targetnya dari pinyin atau jyutping bernomor, jadi pada jenjang yang dipandu tutor ia bekerja dari romanisasi apa pun yang baru saja disediakan model untuk kalimat itu, bukan dari baris yang sudah diperiksa lebih dulu.`,
+      `Unit tertulis baru ada untuk ${modules} modul di empat jalur: HSK 1 sampai 6 untuk Mandarin, Foundation sampai TOEFL 100 untuk Inggris, JLPT N5 dan N4 untuk Jepang, dan TOPIK I untuk Korea. Jenjang lain di halaman ini belum punya pelajaran tertulis dan membuka halaman biasa yang mengatakan itu. Tutor AI adalah produk terpisah dengan akun Pro, ditautkan di sana di bawah judulnya sendiri, bukan sebagai tujuan sebuah jenjang.`,
       `Bahasa Vietnam tidak punya masalah itu, karena nadanya ditulis langsung di dalam kalimatnya dan penilai membacanya lurus dari teks. Dua dari enam nadanya masih ditandai digabung, bukan dipisah: huyền dengan nặng, dan sắc dengan ngã. Tiap pasangan itu dibedakan oleh hentakan di tenggorokan, bukan oleh perubahan tinggi nada, padahal tinggi nada itulah keseluruhan yang diukur di sini. Kedua anggotanya dipegang pada satu target, dan hasilnya menyebutkan pembedaan mana yang tidak dinilai. Itu klaim yang lebih kecil daripada yang akan disampaikan sebuah angka yang terlihat meyakinkan.`,
-      `Set latihannya punya batas yang sama. Soalnya disusun dari baris latihan yang ditulis, jadi soal hanya ada untuk ${modules} modul itu dan tidak di tempat lain: jenjang yang dipandu tutor tetap punya percakapan dan penilaian bicara, tetapi tanpa pilihan ganda, tanpa isian, tanpa menyimak, tanpa tulis tangan, dan tanpa susun kalimat, karena tidak ada baris tertulis untuk membuatnya.`,
-      `Ada ${longTail} bahasa lagi yang bisa dijangkau lewat tutor tanpa tangga sendiri. Di katalog semuanya dicantumkan apa adanya, yaitu latihan percakapan, dan sengaja tidak dimasukkan ke tabel di atas, karena tabel itu menghitung jenjang, bukan bahasa.`,
+      `Set latihannya punya batas yang sama. Soalnya disusun dari baris latihan yang ditulis, jadi soal hanya ada untuk ${modules} modul itu dan tidak di tempat lain: jenjang yang belum ditulis tidak punya pilihan ganda, isian, menyimak, tulis tangan, atau susun kalimat, karena tidak ada baris tertulis untuk membuatnya. Tidak ada yang dibuat mesin untuk menutup kekosongan itu.`,
+      `Ada ${longTail} bahasa lagi yang dicantumkan di katalog sebagai label biasa, bukan tautan, tanpa materi tertulis, dan sengaja tidak dimasukkan ke tabel di atas, karena tabel itu menghitung jenjang, bukan bahasa.`,
     ],
   },
 };
@@ -394,7 +394,7 @@ export const AUDIT: Record<Locale, Audit> = {
     complaintHeading: "About the report that the modules would not open",
     complaint: [
       "That was worth reporting and the check above exists because of it. Two things had gone wrong. The catalogue offered rungs that had no page behind them, so a card that looked interactive did nothing. Separately, the address being read was not always the address the latest work had been deployed to, so a fix could be live somewhere and absent here at the same time.",
-      "Both are closed now, and neither is closed by assertion. Every rung resolves either to an authored module or to the tutor opened at that level, and the audit above walks all of them from your machine. The deployment says which commit it is running, and a deploy that cannot move the canonical address now fails rather than reporting success.",
+      "Both are closed now, and neither is closed by assertion. Every rung resolves either to an authored module or to a free page saying the rung is not written yet, and the audit above walks all of them from your machine. The deployment says which commit it is running, and a deploy that cannot move the canonical address now fails rather than reporting success.",
     ],
     claimsHeading: "What is claimed, and what would disprove it",
     claimsLead:
@@ -455,7 +455,7 @@ export const AUDIT: Record<Locale, Audit> = {
       "The interface exists in English and Indonesian, the tutor console included, and the tutor is told to explain in whichever of the two you are reading. What is not translated is the written syllabus: unit titles, grammar points and glosses were authored in English and are still only in English. That is a body of writing rather than a set of labels, and running it through a machine would leave a learner studying from prose nobody had checked, so it is left as it is and said so here.",
     ],
     rungLimit: (written, total, units) =>
-      `${written} of ${total} rungs carry authored units, ${units} of them in total. The rest are taught by the tutor from the level descriptor. Both work; they are not the same thing.`,
+      `${written} of ${total} rungs carry authored units, ${units} of them in total. The rest are not written yet and are marked that way.`,
     coverageLink: "the coverage table",
     closing:
       "If something here does not hold up, the failing case is the useful thing to send back. The suites are written so that a fault names itself, and a report of the shape “this address returned 404” is enough to act on.",
@@ -494,7 +494,7 @@ export const AUDIT: Record<Locale, Audit> = {
     complaintHeading: "Soal laporan bahwa modulnya tidak bisa dibuka",
     complaint: [
       "Laporan itu pantas disampaikan, dan pemeriksaan di atas ada justru karenanya. Ada dua hal yang salah. Katalog menawarkan jenjang yang belum punya halaman di baliknya, jadi kartunya terlihat bisa ditekan tetapi tidak membuka apa apa. Terpisah dari itu, alamat yang dibaca tidak selalu alamat yang menerima pekerjaan terakhir, jadi sebuah perbaikan bisa sudah hidup di satu tempat dan belum ada di sini pada saat yang sama.",
-      "Keduanya sudah ditutup, dan tidak satu pun ditutup lewat pernyataan. Setiap jenjang bermuara ke modul yang ditulis atau ke tutor yang sudah dibuka pada jenjang itu, dan pemeriksaan di atas menyusuri semuanya dari komputer Anda. Penyebarannya menyebutkan commit mana yang sedang dijalankan, dan proses penyebaran yang gagal memindahkan alamat utamanya kini berhenti dengan status gagal, bukan melaporkan berhasil.",
+      "Keduanya sudah ditutup, dan tidak satu pun ditutup lewat pernyataan. Setiap jenjang bermuara ke modul yang ditulis atau ke halaman gratis yang menyebutkan jenjang itu belum ditulis, dan pemeriksaan di atas menyusuri semuanya dari komputer Anda. Penyebarannya menyebutkan commit mana yang sedang dijalankan, dan proses penyebaran yang gagal memindahkan alamat utamanya kini berhenti dengan status gagal, bukan melaporkan berhasil.",
     ],
     claimsHeading: "Yang diklaim, dan apa yang akan mematahkannya",
     claimsLead:
@@ -555,7 +555,7 @@ export const AUDIT: Record<Locale, Audit> = {
       "Antarmukanya tersedia dalam bahasa Inggris dan Indonesia, termasuk konsol tutor, dan tutornya diminta menjelaskan dalam bahasa yang sedang Anda baca. Yang belum diterjemahkan adalah silabus tertulisnya: judul unit, butir tata bahasa, dan penjelasan artinya ditulis dalam bahasa Inggris dan masih hanya ada dalam bahasa itu. Itu satu badan tulisan, bukan sekumpulan label, dan menerjemahkannya dengan mesin akan membuat pelajar belajar dari kalimat yang belum diperiksa siapa pun, jadi dibiarkan apa adanya dan disebutkan di sini.",
     ],
     rungLimit: (written, total, units) =>
-      `Dari ${total} jenjang, ${written} sudah membawa unit tertulis, seluruhnya ${units} unit. Sisanya diajar tutor berdasarkan deskripsi jenjangnya. Keduanya bisa dipakai, tetapi bukan hal yang sama.`,
+      `Dari ${total} jenjang, ${written} sudah membawa unit tertulis, seluruhnya ${units} unit. Sisanya belum ditulis dan ditandai begitu.`,
     coverageLink: "tabel cakupan",
     closing:
       "Kalau ada yang tidak sesuai, bagian yang gagal itulah yang paling berguna untuk dikirim balik. Kumpulan ujinya ditulis supaya kesalahannya menyebut dirinya sendiri, dan laporan sesederhana “alamat ini menjawab 404” sudah cukup untuk ditindaklanjuti.",
